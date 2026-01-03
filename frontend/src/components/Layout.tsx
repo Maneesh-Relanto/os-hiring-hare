@@ -13,7 +13,6 @@ import {
   ListItemText,
   Avatar,
   Divider,
-  useTheme,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -45,7 +44,6 @@ const Layout = ({ children }: LayoutProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -252,6 +250,7 @@ const Layout = ({ children }: LayoutProps) => {
         sx={{
           flexGrow: 1,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
           minHeight: '100vh',
         }}
       >

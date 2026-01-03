@@ -1,6 +1,5 @@
 import { Box, Container, Grid, Paper, Typography, Card, CardContent, LinearProgress } from '@mui/material';
 import { 
-  TrendingUp, 
   PendingActions, 
   WorkOutline, 
   CheckCircleOutline,
@@ -12,12 +11,11 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ReactNode;
-  color: string;
   trend?: string;
   gradient: string;
 }
 
-const StatCard = ({ title, value, icon, color, trend, gradient }: StatCardProps) => (
+const StatCard = ({ title, value, icon, trend, gradient }: StatCardProps) => (
   <Card
     sx={{
       height: '100%',
@@ -150,7 +148,6 @@ const Dashboard = () => {
             title="Total Requirements"
             value="24"
             icon={<Description sx={{ fontSize: 32 }} />}
-            color="primary.main"
             gradient="linear-gradient(135deg, #A855F7 0%, #9333EA 100%)"
             trend="+3 this week"
           />
@@ -160,7 +157,6 @@ const Dashboard = () => {
             title="Pending Approvals"
             value="8"
             icon={<PendingActions sx={{ fontSize: 32 }} />}
-            color="warning.main"
             gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
             trend="5 urgent"
           />
@@ -170,7 +166,6 @@ const Dashboard = () => {
             title="Active Positions"
             value="16"
             icon={<WorkOutline sx={{ fontSize: 32 }} />}
-            color="success.main"
             gradient="linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%)"
             trend="12 open"
           />
@@ -180,7 +175,6 @@ const Dashboard = () => {
             title="Filled This Month"
             value="5"
             icon={<CheckCircleOutline sx={{ fontSize: 32 }} />}
-            color="success.main"
             gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
             trend="Target: 8"
           />
