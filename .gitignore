@@ -2,6 +2,24 @@
 # Industry Standard for Node.js + React + PostgreSQL Project
 
 # ============================================
+# CRITICAL: Credentials & Secrets
+# ============================================
+# Database setup files with real passwords
+setup_database.sql
+create_database.sql
+pgadmin_setup_PRIVATE.sql
+DATABASE_CREDENTIALS.md
+local_credentials.txt
+*.credentials
+RUN_DATABASE_SETUP.bat
+setup_database.ps1
+
+# Backend environment files
+backend/.env
+backend/.env.local
+backend/.env.*.local
+
+# ============================================
 # Dependencies
 # ============================================
 node_modules/
