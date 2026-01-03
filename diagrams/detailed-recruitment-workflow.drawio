@@ -1,0 +1,323 @@
+<mxfile host="app.diagrams.net" modified="2026-01-03T00:00:00.000Z" agent="5.0" version="22.1.0" etag="draw.io" type="device">
+  <diagram name="Detailed Recruitment Workflow" id="detailed-recruitment">
+    <mxGraphModel dx="1434" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="Detailed Recruitment Requirement Tracking Workflow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: Hiring Manager -->
+        <mxCell id="lane-manager" value="Hiring Manager" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="1440" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="hm-1" value="Identify&#xa;Hiring Need" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-manager">
+          <mxGeometry x="60" y="50" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hm-2" value="Draft Job&#xa;Description" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-manager">
+          <mxGeometry x="200" y="50" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hm-3" value="Define&#xa;Requirements&#xa;&amp; Budget" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-manager">
+          <mxGeometry x="340" y="50" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hm-4" value="Participate in&#xa;Interviews" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-manager">
+          <mxGeometry x="1050" y="50" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hm-5" value="Final Candidate&#xa;Selection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-manager">
+          <mxGeometry x="1190" y="50" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: HR Business Partner -->
+        <mxCell id="lane-hrbp" value="HR Business Partner" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="300" width="1440" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="hrbp-1" value="Review&#xa;Requirement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-hrbp">
+          <mxGeometry x="480" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hrbp-2" value="Validate&#xa;Job Details&#xa;&amp; Alignment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-hrbp">
+          <mxGeometry x="620" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hrbp-3" value="Submit for&#xa;Approvals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-hrbp">
+          <mxGeometry x="760" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="hrbp-decision" value="All&#xa;Approvals&#xa;Received?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;fontSize=10" vertex="1" parent="lane-hrbp">
+          <mxGeometry x="900" y="25" width="90" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="hrbp-4" value="Coordinate&#xa;Offer &amp; Contract" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-hrbp">
+          <mxGeometry x="1330" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: Approvers -->
+        <mxCell id="lane-approvers" value="Approvers (Finance, Dept Head, Leadership)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="480" width="1440" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="app-1" value="Budget&#xa;Approval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-approvers">
+          <mxGeometry x="760" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="app-2" value="Department&#xa;Head Approval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-approvers">
+          <mxGeometry x="760" y="90" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: HR Recruiter -->
+        <mxCell id="lane-recruiter" value="HR Recruiter / Talent Acquisition" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="630" width="1440" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="rec-1" value="Receive&#xa;Approved&#xa;Requirement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-recruiter">
+          <mxGeometry x="1020" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rec-2" value="Post Job&#xa;on Portals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-recruiter">
+          <mxGeometry x="1020" y="110" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rec-3" value="Source&#xa;Candidates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-recruiter">
+          <mxGeometry x="1150" y="110" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rec-4" value="Screen&#xa;Resumes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-recruiter">
+          <mxGeometry x="1280" y="110" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: Interview Panel -->
+        <mxCell id="lane-panel" value="Interview Panel" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="830" width="1440" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="panel-1" value="Conduct&#xa;Technical&#xa;Interviews" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-panel">
+          <mxGeometry x="1050" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="panel-2" value="Provide&#xa;Feedback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;fontStyle=1" vertex="1" parent="lane-panel">
+          <mxGeometry x="1190" y="35" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="panel-decision" value="Candidate&#xa;Suitable?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontStyle=1;fontSize=10" vertex="1" parent="lane-panel">
+          <mxGeometry x="1190" y="90" width="90" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Swimlane: System -->
+        <mxCell id="lane-system" value="System (Hiring Hare Platform)" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;fontStyle=1;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="80" y="980" width="1440" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-1" value="Track&#xa;Requirement&#xa;Status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="60" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-2" value="Send&#xa;Approval&#xa;Notifications" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="760" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-3" value="Update&#xa;Dashboard&#xa;&amp; Reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="900" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-4" value="Track&#xa;Candidate&#xa;Pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="1150" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-5" value="Generate&#xa;Offer Letter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="1330" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sys-6" value="Track to&#xa;Onboarding" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=10;fontStyle=1" vertex="1" parent="lane-system">
+          <mxGeometry x="1330" y="110" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Start -->
+        <mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="30" y="155" width="40" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows within Hiring Manager Lane -->
+        <mxCell id="arrow-hm-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="start" target="hm-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-hm-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hm-1" target="hm-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-hm-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hm-2" target="hm-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrow to HRBP -->
+        <mxCell id="arrow-to-hrbp" value="Submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=10" edge="1" parent="1" source="hm-3" target="hrbp-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- HRBP Flow -->
+        <mxCell id="arrow-hrbp-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hrbp-1" target="hrbp-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-hrbp-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hrbp-2" target="hrbp-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- To Approvers -->
+        <mxCell id="arrow-to-approvers" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="hrbp-3" target="app-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-approvers" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="app-1" target="app-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Back to HRBP Decision -->
+        <mxCell id="arrow-back-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;dashed=1;" edge="1" parent="1" source="app-2" target="hrbp-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System Notifications -->
+        <mxCell id="arrow-sys-notify" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;strokeColor=#82b366" edge="1" parent="1" source="hrbp-3" target="sys-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Yes to Recruiter -->
+        <mxCell id="arrow-decision-yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=10" edge="1" parent="1" source="hrbp-decision" target="rec-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision No Loop Back -->
+        <mxCell id="arrow-decision-no" value="No - Revisions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=9;dashed=1;strokeColor=#b85450" edge="1" parent="1" source="hrbp-decision" target="hm-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="365" />
+              <mxPoint x="1020" y="280" />
+              <mxPoint x="470" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Recruiter Flow -->
+        <mxCell id="arrow-rec-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="rec-1" target="rec-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rec-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="rec-2" target="rec-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-rec-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="rec-3" target="rec-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- To Interview Panel -->
+        <mxCell id="arrow-to-panel" value="Schedule" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=10" edge="1" parent="1" source="rec-4" target="hm-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1410" y="765" />
+              <mxPoint x="1410" y="800" />
+              <mxPoint x="1180" y="800" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Panel Flow -->
+        <mxCell id="arrow-panel-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hm-4" target="panel-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-panel-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="panel-1" target="panel-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-panel-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="panel-2" target="hm-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-panel-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="hm-5" target="panel-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision No - Back to Sourcing -->
+        <mxCell id="arrow-panel-no" value="No" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=10;dashed=1;strokeColor=#b85450" edge="1" parent="1" source="panel-decision" target="rec-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1315" y="945" />
+              <mxGeometry relative="1" as="geometry">
+                <mxPoint x="20" y="-20" as="offset" />
+              </mxGeometry>
+              <mxPoint x="1480" y="945" />
+              <mxPoint x="1480" y="765" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Decision Yes - To Offer -->
+        <mxCell id="arrow-panel-yes" value="Yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;fontStyle=1;fontSize=10" edge="1" parent="1" source="panel-decision" target="hrbp-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1315" y="945" />
+              <mxPoint x="1460" y="945" />
+              <mxPoint x="1460" y="365" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Offer to System -->
+        <mxCell id="arrow-offer-sys" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;endArrow=classic;endFill=1;dashed=1;strokeColor=#82b366" edge="1" parent="1" source="hrbp-4" target="sys-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System Onboarding -->
+        <mxCell id="arrow-onboard" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="sys-5" target="sys-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- End -->
+        <mxCell id="end" value="Requirement&#xa;Closed" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=3;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1550" y="1030" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;endArrow=classic;endFill=1;" edge="1" parent="1" source="sys-6" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System Tracking (continuous) -->
+        <mxCell id="sys-track-label" value="Continuous Tracking &amp; Status Updates" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2;fontSize=11;fontColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="100" y="1120" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-title-2" value="Process Flow Legend" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="100" y="1180" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-solid" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;endFill=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="1220" as="sourcePoint" />
+            <mxPoint x="150" y="1220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-solid-text" value="Main Process Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="160" y="1210" width="150" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-dashed" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;endFill=1;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="1250" as="sourcePoint" />
+            <mxPoint x="150" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-dashed-text" value="System/Notification Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="160" y="1240" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-red" value="" style="endArrow=classic;html=1;rounded=0;strokeWidth=2;endFill=1;dashed=1;strokeColor=#b85450" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="1280" as="sourcePoint" />
+            <mxPoint x="150" y="1280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend-red-text" value="Rejection/Revision Loop" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="160" y="1270" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Key Stages Summary -->
+        <mxCell id="stages-title" value="Key Process Stages" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=13" vertex="1" parent="1">
+          <mxGeometry x="400" y="1180" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-1" value="1. Requirement Creation (Hiring Manager)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1210" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-2" value="2. Validation &amp; Submission (HR Business Partner)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1230" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-3" value="3. Multi-Level Approvals (Finance, Leadership)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1250" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-4" value="4. Job Posting &amp; Candidate Sourcing (Recruiter)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1270" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-5" value="5. Interview &amp; Selection (Hiring Manager + Panel)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1290" width="350" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stage-6" value="6. Offer &amp; Onboarding (HR + System)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="400" y="1310" width="350" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
