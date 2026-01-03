@@ -1,10 +1,11 @@
 # Hiring Hare - Project Reference Document
 **Complete Analysis & Decision Record**
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** January 3, 2026  
-**Project Status:** Planning & Analysis Complete  
-**Next Phase:** Technical Architecture & Development
+**Project Status:** Planning & Analysis Complete → Technical Architecture Phase  
+**Next Phase:** Development Setup & Implementation  
+**Tech Stack Decision:** ✅ Python + React (Approved Jan 3, 2026)
 
 ---
 
@@ -749,12 +750,24 @@ Hiring Hare/
 
 ---
 
-### Decision 3: Local Development Approach
+### Decision 3: Tech Stack Selection
 **Date:** January 3, 2026  
-**Decision:** Native Node.js development (no XAMPP)  
-**Alternatives Considered:** XAMPP for PHP, Laragon for multi-stack  
-**Rationale:** Node.js runs its own server, simpler setup, hot reload built-in  
-**Decided By:** Developer experience comparison
+**Decision:** Python (FastAPI) + React + TypeScript  
+**Alternatives Considered:** Node.js + React (85/100), PHP Laravel + React (78/100)  
+**Rationale:** 
+- **Score: 82/100** - Optimal balance for enterprise requirements
+- Strong security features (Pydantic validation, type safety)
+- Excellent maintainability and code quality (type hints, static analysis)
+- Robust async support with FastAPI for real-time capabilities
+- Rich ecosystem for data processing and integrations
+- SQLAlchemy ORM provides enterprise-grade database capabilities
+- Lower long-term maintenance costs
+- Strong support for complex business logic
+**Decided By:** Team consensus based on tech-stack-analysis.md findings  
+**Impact:** 
+- Development timeline: 26-30 weeks for full MVP
+- Team composition: Python + React developers required
+- Infrastructure: ASGI server (Uvicorn), PostgreSQL, Redis
 
 ---
 
@@ -769,10 +782,24 @@ Hiring Hare/
 
 ### Decision 5: Real-Time Implementation
 **Date:** January 3, 2026  
-**Decision:** Socket.io for WebSocket communication  
-**Alternatives Considered:** Polling, Server-Sent Events  
-**Rationale:** Native real-time support, bidirectional communication  
-**Decided By:** Performance requirements
+**Decision:** WebSockets with FastAPI WebSocket support + Redis Pub/Sub  
+**Alternatives Considered:** Socket.io, Polling, Server-Sent Events  
+**Rationale:** Native WebSocket support in FastAPI, scalable with Redis  
+**Decided By:** Performance requirements and Python stack alignment
+
+---
+
+### Decision 6: API Framework
+**Date:** January 3, 2026  
+**Decision:** FastAPI (instead of Django/Flask)  
+**Rationale:**
+- Modern async support (critical for real-time features)
+- Automatic OpenAPI/Swagger documentation
+- Built-in Pydantic validation
+- Excellent performance (comparable to Node.js)
+- Developer-friendly with type hints
+- Easy testing with TestClient
+**Decided By:** Technical requirements analysis
 
 ---
 
@@ -796,22 +823,24 @@ Hiring Hare/
 
 #### Day 5-7: Project Setup
 - [ ] Initialize Git repositories (monorepo vs multi-repo)
-- [ ] Set up backend project (NestJS)
-- [ ] Set up frontend project (React + TypeScript)
-- [ ] Configure ESLint, Prettier, TypeScript
+- [ ] Set up backend project (FastAPI with Poetry/pip)
+- [ ] Set up frontend project (React + TypeScript + Vite)
+- [ ] Configure linting (Black, isort, mypy for Python; ESLint, Prettier for React)
 - [ ] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Configure Docker development environment
 - [ ] Set up local PostgreSQL database
+- [ ] Configure Redis for caching and WebSocket pub/sub
 
 ### 10.2 Week 2: Foundation
 
 #### Backend Setup
-- [ ] Install NestJS and dependencies
-- [ ] Configure database connection (TypeORM/Prisma)
-- [ ] Set up environment variables
-- [ ] Create base entities and repositories
-- [ ] Implement authentication (JWT)
-- [ ] Create API documentation structure (Swagger)
+- [ ] Install FastAPI and dependencies (uvicorn, SQLAlchemy, alembic)
+- [ ] Configure database connection (SQLAlchemy + asyncpg)
+- [ ] Set up environment variables (.env with pydantic-settings)
+- [ ] Create base models and schemas (Pydantic)
+- [ ] Implement authentication (JWT with python-jose)
+- [ ] Create API documentation structure (auto-generated OpenAPI)
+- [ ] Set up Alembic for database migrations
 
 #### Frontend Setup
 - [ ] Create React app with TypeScript
