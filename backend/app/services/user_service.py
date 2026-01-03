@@ -1,6 +1,7 @@
 """
 User service for business logic and database operations
 """
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.security import get_password_hash, verify_password
 from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
 
 
 class UserService:
@@ -18,7 +20,7 @@ class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
     
-    async def get_by_id(self, user_id: str | UUID) -> Optional[User]:
+    async def get(self, user_id: str | UUID) -> Optional[User]:
         """
         Get user by ID
         
@@ -34,6 +36,10 @@ class UserService:
             .where(User.id == user_id, User.deleted_at.is_(None))
         )
         return result.scalar_one_or_none()
+    
+    async def get_by_id(self, user_id: str | UUID) -> Optional[User]:
+        """Alias for get() method."""
+        return await self.get(user_id)
     
     async def get_by_email(self, email: str) -> Optional[User]:
         """
@@ -69,18 +75,21 @@ class UserService:
         )
         return result.scalar_one_or_none()
     
-    async def authenticate(self, email: str, password: str) -> Optional[User]:
+    async def authenticate(self, username: str, password: str) -> Optional[User]:
         """
-        Authenticate user by email and password
+        Authenticate user by username/email and password
         
         Args:
-            email: User email
+            username: Username or email
             password: Plain text password
             
         Returns:
             User instance if authenticated, None otherwise
         """
-        user = await self.get_by_email(email)
+        # Try to find user by username or email
+        user = await self.get_by_username(username)
+        if not user:
+            user = await self.get_by_email(username)
         
         if not user:
             return None
@@ -93,38 +102,32 @@ class UserService:
         
         return user
     
-    async def create(
-        self,
-        email: str,
-        username: str,
-        password: str,
-        first_name: str,
-        last_name: str,
-        **kwargs
-    ) -> User:
+    async def create(self, user_data: UserCreate) -> User:
         """
         Create new user
         
         Args:
-            email: User email
-            username: Username
-            password: Plain text password
-            first_name: First name
-            last_name: Last name
-            **kwargs: Additional user fields
+            user_data: User creation schema
             
         Returns:
             Created user instance
         """
-        password_hash = get_password_hash(password)
+        password_hash = get_password_hash(user_data.password)
         
         user = User(
-            email=email,
-            username=username,
+            email=user_data.email,
+            username=user_data.username,
             password_hash=password_hash,
-            first_name=first_name,
-            last_name=last_name,
-            **kwargs
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
+            phone=user_data.phone,
+            employee_id=user_data.employee_id,
+            job_title=user_data.job_title,
+            department_id=user_data.department_id,
+            is_active=True,
+            is_superuser=False,
+            email_verified=False,
+            phone_verified=False,
         )
         
         self.db.add(user)
@@ -132,6 +135,18 @@ class UserService:
         await self.db.refresh(user)
         
         return user
+    
+    async def update_last_login(self, user_id: str | UUID) -> None:
+        """
+        Update user's last login timestamp
+        
+        Args:
+            user_id: User UUID
+        """
+        user = await self.get(user_id)
+        if user:
+            user.last_login_at = datetime.utcnow()
+            await self.db.commit()
     
     async def update(self, user: User, **kwargs) -> User:
         """
