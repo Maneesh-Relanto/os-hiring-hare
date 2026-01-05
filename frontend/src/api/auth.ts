@@ -32,13 +32,16 @@ export interface User {
 
 export const authApi = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
-    const formData = new FormData();
-    formData.append('username', email);
-    formData.append('password', password);
+    const params = new URLSearchParams();
+    params.append('username', email);
+    params.append('password', password);
+    
+    console.log('🔧 Request payload:', params.toString());
+    console.log('🔧 Content-Type: application/x-www-form-urlencoded');
 
-    const response = await api.post<LoginResponse>('/api/v1/auth/login', formData, {
+    const response = await api.post<LoginResponse>('/api/v1/auth/login', params, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
     return response.data;

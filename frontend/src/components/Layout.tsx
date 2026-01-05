@@ -101,8 +101,9 @@ const Layout = ({ children }: LayoutProps) => {
     <Box
       sx={{
         height: '100%',
-        background: 'linear-gradient(180deg, rgba(168, 85, 247, 0.05) 0%, rgba(34, 211, 238, 0.05) 100%)',
-        backdropFilter: 'blur(20px)',
+        background: 'linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%)',
+        borderRight: '1px solid',
+        borderColor: 'divider',
       }}
     >
       {/* Logo */}
@@ -116,16 +117,17 @@ const Layout = ({ children }: LayoutProps) => {
       >
         <Box
           sx={{
-            width: 40,
-            height: 40,
-            borderRadius: 2,
-            background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+            width: 48,
+            height: 48,
+            borderRadius: 3,
+            background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 20,
+            fontWeight: 800,
+            fontSize: 22,
             color: 'white',
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
           }}
         >
           HH
@@ -133,8 +135,8 @@ const Layout = ({ children }: LayoutProps) => {
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+            fontWeight: 800,
+            background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
@@ -160,13 +162,17 @@ const Layout = ({ children }: LayoutProps) => {
                 onClick={() => navigate(item.path)}
                 sx={{
                   borderRadius: 2,
+                  py: 1.5,
                   backgroundColor: isActive
-                    ? 'rgba(168, 85, 247, 0.15)'
+                    ? 'rgba(99, 102, 241, 0.1)'
                     : 'transparent',
+                  border: '1px solid',
+                  borderColor: isActive ? 'primary.main' : 'transparent',
                   '&:hover': {
                     backgroundColor: isActive
-                      ? 'rgba(168, 85, 247, 0.25)'
-                      : 'rgba(168, 85, 247, 0.08)',
+                      ? 'rgba(99, 102, 241, 0.15)'
+                      : 'rgba(99, 102, 241, 0.05)',
+                    borderColor: isActive ? 'primary.main' : 'rgba(99, 102, 241, 0.2)',
                   },
                   transition: 'all 0.2s ease',
                 }}
@@ -182,7 +188,7 @@ const Layout = ({ children }: LayoutProps) => {
                 <ListItemText
                   primary={item.text}
                   primaryTypographyProps={{
-                    fontWeight: isActive ? 600 : 400,
+                    fontWeight: isActive ? 700 : 500,
                     color: isActive ? 'primary.main' : 'text.primary',
                   }}
                 />
@@ -197,13 +203,18 @@ const Layout = ({ children }: LayoutProps) => {
       {/* User Profile */}
       <Box
         sx={{
-          p: 2,
+          p: 2.5,
           m: 2,
-          borderRadius: 2,
-          background: 'rgba(168, 85, 247, 0.08)',
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%)',
+          border: '1px solid',
+          borderColor: 'divider',
           cursor: 'pointer',
+          transition: 'all 0.2s ease',
           '&:hover': {
-            background: 'rgba(168, 85, 247, 0.15)',
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(236, 72, 153, 0.12) 100%)',
+            borderColor: 'primary.main',
+            transform: 'translateY(-2px)',
           },
         }}
         onClick={handleMenuOpen}
@@ -211,9 +222,11 @@ const Layout = ({ children }: LayoutProps) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
           <Avatar
             sx={{
-              width: 40,
-              height: 40,
-              background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+              width: 44,
+              height: 44,
+              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+              fontWeight: 700,
+              fontSize: '1.1rem',
             }}
           >
             {user?.first_name?.[0] || 'U'}
@@ -235,11 +248,13 @@ const Layout = ({ children }: LayoutProps) => {
                 label={role.display_name}
                 size="small"
                 sx={{
-                  height: 20,
+                  height: 22,
                   fontSize: '0.7rem',
-                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                  backgroundColor: 'white',
                   color: 'primary.main',
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  border: '1px solid',
+                  borderColor: 'primary.main',
                 }}
               />
             ))}
@@ -248,11 +263,13 @@ const Layout = ({ children }: LayoutProps) => {
                 label={`+${user.roles.length - 2}`}
                 size="small"
                 sx={{
-                  height: 20,
+                  height: 22,
                   fontSize: '0.7rem',
-                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                  backgroundColor: 'white',
                   color: 'primary.main',
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  border: '1px solid',
+                  borderColor: 'primary.main',
                 }}
               />
             )}
@@ -267,13 +284,15 @@ const Layout = ({ children }: LayoutProps) => {
       {/* App Bar */}
       <AppBar
         position="fixed"
+        elevation={0}
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          background: 'rgba(255, 255, 255, 0.8)',
+          background: 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(20px)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: 'none',
+          borderBottom: '1px solid',
+          borderColor: 'divider',
         }}
       >
         <Toolbar>

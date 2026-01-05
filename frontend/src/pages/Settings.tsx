@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
+  Container,
   Typography,
   Paper,
   Table,
@@ -73,33 +74,46 @@ const Settings = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
-        Settings
-      </Typography>
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
+      <Container maxWidth="xl">
+        <Typography variant="h3" sx={{ mb: 1, fontWeight: 800, color: 'text.primary' }}>
+          Settings
+        </Typography>
+        <Typography variant="h6" color="text.secondary" fontWeight={500} sx={{ mb: 4 }}>
+          Manage users, roles, and system configuration
+        </Typography>
 
-      <Paper sx={{ borderRadius: 2 }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, newValue) => setTabValue(newValue)}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
-          <Tab icon={<People />} label="Users" iconPosition="start" />
-          <Tab icon={<Badge />} label="Roles" iconPosition="start" />
-        </Tabs>
+        <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+          <Tabs
+            value={tabValue}
+            onChange={(_, newValue) => setTabValue(newValue)}
+            sx={{ 
+              borderBottom: 1, 
+              borderColor: 'divider',
+              px: 2,
+              '& .MuiTab-root': {
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                textTransform: 'none',
+              },
+            }}
+          >
+            <Tab icon={<People />} label="Users" iconPosition="start" />
+            <Tab icon={<Badge />} label="Roles" iconPosition="start" />
+          </Tabs>
 
-        <TabPanel value={tabValue} index={0}>
+          <TabPanel value={tabValue} index={0}>
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
               <CircularProgress />
             </Box>
           ) : (
             <>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
                 User Management
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Total Users: {users.length}
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontWeight: 500 }}>
+                Total Users: <Box component="span" sx={{ color: 'primary.main', fontWeight: 700 }}>{users.length}</Box>
               </Typography>
               <TableContainer>
                 <Table>
@@ -168,20 +182,20 @@ const Settings = () => {
             </Box>
           ) : (
             <>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
                 Role Management
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Total Roles: 7 (System Roles)
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontWeight: 500 }}>
+                Total Roles: <Box component="span" sx={{ color: 'primary.main', fontWeight: 700 }}>7 (System Roles)</Box>
               </Typography>
               <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Role Name</TableCell>
-                      <TableCell>Display Name</TableCell>
-                      <TableCell>Description</TableCell>
-                      <TableCell>Type</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Role Name</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Display Name</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Description</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem' }}>Type</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -226,13 +240,13 @@ const Settings = () => {
             </>
           )}
         </TabPanel>
-      </Paper>
+        </Paper>
 
-      <Paper sx={{ mt: 3, p: 3, borderRadius: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Paper elevation={0} sx={{ mt: 3, p: 4, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
           Test User Credentials
         </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 2 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 2.5 }}>
           {[
             { email: 'admin@hiringhare.com', password: 'Admin@2024', role: 'Administrator' },
             { email: 'manager@hiringhare.com', password: 'Manager@2024', role: 'Hiring Manager' },
@@ -244,26 +258,33 @@ const Settings = () => {
             <Box
               key={user.email}
               sx={{
-                p: 2,
-                border: 1,
+                p: 2.5,
+                border: 2,
                 borderColor: 'divider',
-                borderRadius: 1,
-                backgroundColor: 'rgba(168, 85, 247, 0.03)',
+                borderRadius: 2.5,
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(236, 72, 153, 0.03) 100%)',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 20px rgba(99, 102, 241, 0.15)',
+                },
               }}
             >
-              <Typography variant="body2" fontWeight={600}>
+              <Typography variant="body1" fontWeight={700} color="primary.main" sx={{ mb: 1.5 }}>
                 {user.role}
               </Typography>
-              <Typography variant="body2" sx={{ mt: 0.5 }}>
+              <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 600 }}>
                 📧 {user.email}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>
                 🔑 {user.password}
               </Typography>
             </Box>
           ))}
         </Box>
       </Paper>
+      </Container>
     </Box>
   );
 };

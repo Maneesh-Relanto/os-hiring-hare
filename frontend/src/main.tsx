@@ -6,8 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
 import App from './App';
-import theme from './styles/theme';
-import './styles/global.css';
+import theme from './theme';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Create React Query client
@@ -24,7 +23,12 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <App />

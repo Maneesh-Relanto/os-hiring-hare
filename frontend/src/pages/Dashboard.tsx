@@ -17,42 +17,45 @@ interface StatCardProps {
 
 const StatCard = ({ title, value, icon, trend, gradient }: StatCardProps) => (
   <Card
+    elevation={0}
     sx={{
       height: '100%',
       background: gradient,
       color: 'white',
       position: 'relative',
       overflow: 'hidden',
-      transition: 'all 0.3s ease',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
       '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: '0 12px 24px rgba(168, 85, 247, 0.4)',
+        transform: 'translateY(-8px) scale(1.02)',
+        boxShadow: '0 20px 40px rgba(99, 102, 241, 0.3)',
       },
     }}
   >
-    <CardContent>
+    <CardContent sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Box>
-          <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500 }}>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="body2" sx={{ opacity: 0.95, fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', fontSize: '0.75rem' }}>
             {title}
           </Typography>
-          <Typography variant="h3" sx={{ fontWeight: 700, mt: 1, mb: 0.5 }}>
+          <Typography variant="h3" sx={{ fontWeight: 800, mt: 1.5, mb: 0.5, fontSize: '2.5rem' }}>
             {value}
           </Typography>
           {trend && (
-            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+            <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500, mt: 1 }}>
               {trend}
             </Typography>
           )}
         </Box>
         <Box
           sx={{
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '12px',
-            p: 1.5,
+            backgroundColor: 'rgba(255, 255, 255, 0.25)',
+            borderRadius: '16px',
+            p: 2,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            backdropFilter: 'blur(10px)',
           }}
         >
           {icon}
@@ -121,217 +124,223 @@ const getActivityIcon = (type: ActivityItem['type']) => {
 
 const Dashboard = () => {
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 1,
-          }}
-        >
-          Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Welcome back! Here's what's happening with your recruitment.
-        </Typography>
-      </Box>
-
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Total Requirements"
-            value="24"
-            icon={<Description sx={{ fontSize: 32 }} />}
-            gradient="linear-gradient(135deg, #A855F7 0%, #9333EA 100%)"
-            trend="+3 this week"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Pending Approvals"
-            value="8"
-            icon={<PendingActions sx={{ fontSize: 32 }} />}
-            gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
-            trend="5 urgent"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Active Positions"
-            value="16"
-            icon={<WorkOutline sx={{ fontSize: 32 }} />}
-            gradient="linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%)"
-            trend="12 open"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Filled This Month"
-            value="5"
-            icon={<CheckCircleOutline sx={{ fontSize: 32 }} />}
-            gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
-            trend="Target: 8"
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3}>
-        {/* Status Overview */}
-        <Grid item xs={12} md={8}>
-          <Paper
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h3"
             sx={{
-              p: 3,
-              background: 'rgba(255, 255, 255, 0.05)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: 3,
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1,
             }}
           >
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-              Requirement Status Overview
-            </Typography>
+            Dashboard
+          </Typography>
+          <Typography variant="h6" color="text.secondary" fontWeight={500}>
+            Welcome back! Here's what's happening with your recruitment.
+          </Typography>
+        </Box>
 
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Draft
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  4 (17%)
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={17}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                  '& .MuiLinearProgress-bar': {
-                    borderRadius: 4,
-                    background: 'linear-gradient(90deg, #9CA3AF 0%, #6B7280 100%)',
-                  },
-                }}
-              />
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Pending Approval
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  8 (33%)
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={33}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                  '& .MuiLinearProgress-bar': {
-                    borderRadius: 4,
-                    background: 'linear-gradient(90deg, #F59E0B 0%, #D97706 100%)',
-                  },
-                }}
-              />
-            </Box>
-
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Active
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  12 (50%)
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={50}
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                  '& .MuiLinearProgress-bar': {
-                    borderRadius: 4,
-                    background: 'linear-gradient(90deg, #22D3EE 0%, #06B6D4 100%)',
-                  },
-                }}
-              />
-            </Box>
-          </Paper>
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} lg={3}>
+            <StatCard
+              title="Total Requirements"
+              value="24"
+              icon={<Description sx={{ fontSize: 36 }} />}
+              gradient="linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)"
+              trend="+3 this week"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <StatCard
+              title="Pending Approvals"
+              value="8"
+              icon={<PendingActions sx={{ fontSize: 36 }} />}
+              gradient="linear-gradient(135deg, #F59E0B 0%, #D97706 100%)"
+              trend="5 urgent"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <StatCard
+              title="Active Positions"
+              value="16"
+              icon={<WorkOutline sx={{ fontSize: 36 }} />}
+              gradient="linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)"
+              trend="12 open"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} lg={3}>
+            <StatCard
+              title="Filled This Month"
+              value="5"
+              icon={<CheckCircleOutline sx={{ fontSize: 36 }} />}
+              gradient="linear-gradient(135deg, #10B981 0%, #059669 100%)"
+              trend="Target: 8"
+            />
+          </Grid>
         </Grid>
 
-        {/* Recent Activity */}
-        <Grid item xs={12} md={4}>
-          <Paper
-            sx={{
-              p: 3,
-              background: 'rgba(255, 255, 255, 0.05)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: 3,
-              height: '100%',
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-              Recent Activity
-            </Typography>
+        <Grid container spacing={3}>
+          {/* Status Overview */}
+          <Grid item xs={12} lg={8}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 4 }}>
+                Requirement Status Overview
+              </Typography>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {recentActivities.map((activity) => (
-                <Box
-                  key={activity.id}
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                  <Typography variant="body1" color="text.primary" fontWeight={600}>
+                    Draft
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" fontWeight={600}>
+                    4 (17%)
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={17}
                   sx={{
-                    display: 'flex',
-                    gap: 2,
-                    p: 2,
-                    borderRadius: 2,
-                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      transform: 'translateX(4px)',
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 6,
+                      background: 'linear-gradient(90deg, #94A3B8 0%, #64748B 100%)',
                     },
                   }}
-                >
-                  <Box sx={{ flexShrink: 0 }}>{getActivityIcon(activity.type)}</Box>
-                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 600, mb: 0.5 }}
-                      noWrap
-                    >
-                      {activity.title}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ display: 'block', mb: 0.5 }}
-                      noWrap
-                    >
-                      {activity.description}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {activity.time} • {activity.user}
-                    </Typography>
-                  </Box>
+                />
+              </Box>
+
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                  <Typography variant="body1" color="text.primary" fontWeight={600}>
+                    Pending Approval
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" fontWeight={600}>
+                    8 (33%)
+                  </Typography>
                 </Box>
-              ))}
-            </Box>
-          </Paper>
+                <LinearProgress
+                  variant="determinate"
+                  value={33}
+                  sx={{
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 6,
+                      background: 'linear-gradient(90deg, #F59E0B 0%, #D97706 100%)',
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
+                  <Typography variant="body1" color="text.primary" fontWeight={600}>
+                    Active
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" fontWeight={600}>
+                    12 (50%)
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={50}
+                  sx={{
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 6,
+                      background: 'linear-gradient(90deg, #3B82F6 0%, #2563EB 100%)',
+                    },
+                  }}
+                />
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Recent Activity */}
+          <Grid item xs={12} lg={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                height: '100%',
+              }}
+            >
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 4 }}>
+                Recent Activity
+              </Typography>
+
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                {recentActivities.map((activity) => (
+                  <Box
+                    key={activity.id}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      p: 2,
+                      borderRadius: 2,
+                      backgroundColor: 'rgba(99, 102, 241, 0.04)',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      transition: 'all 0.2s ease',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                        transform: 'translateX(6px)',
+                        borderColor: 'primary.main',
+                      },
+                    }}
+                  >
+                    <Box sx={{ flexShrink: 0, pt: 0.5 }}>{getActivityIcon(activity.type)}</Box>
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                        noWrap
+                      >
+                        {activity.title}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: 'block', mb: 0.5, lineHeight: 1.5 }}
+                        noWrap
+                      >
+                        {activity.description}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                        {activity.time} • {activity.user}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 
