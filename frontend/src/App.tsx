@@ -1,19 +1,35 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Requirements from './pages/Requirements';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/requirements" element={<Requirements />} />
-        <Route path="/candidates" element={<div>Candidates Page (Coming Soon)</div>} />
-        <Route path="/reports" element={<div>Reports Page (Coming Soon)</div>} />
-        <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Protected Routes - Wrapped in Layout */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/requirements" element={<Requirements />} />
+                <Route path="/candidates" element={<div>Candidates Page (Coming Soon)</div>} />
+                <Route path="/reports" element={<div>Reports Page (Coming Soon)</div>} />
+                <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
 

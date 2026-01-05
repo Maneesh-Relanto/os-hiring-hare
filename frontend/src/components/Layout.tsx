@@ -13,6 +13,9 @@ import {
   ListItemText,
   Avatar,
   Divider,
+  Menu,
+  MenuItem,
+  ListItemIcon as MenuItemIcon,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -23,8 +26,10 @@ import {
   Settings,
   Notifications,
   AccountCircle,
+  Logout,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 const drawerWidth = 260;
 
@@ -42,11 +47,27 @@ const menuItems = [
 
 const Layout = ({ children }: LayoutProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearAuth } = useAuthStore();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    clearAuth();
+    handleMenuClose();
+    navigate('/login');
   };
 
   const drawer = (
@@ -151,7 +172,12 @@ const Layout = ({ children }: LayoutProps) => {
           display: 'flex',
           alignItems: 'center',
           gap: 2,
+          cursor: 'pointer',
+          '&:hover': {
+            background: 'rgba(168, 85, 247, 0.15)',
+          },
         }}
+        onClick={handleMenuOpen}
       >
         <Avatar
           sx={{
@@ -204,11 +230,56 @@ const Layout = ({ children }: LayoutProps) => {
           <IconButton sx={{ color: 'text.primary' }}>
             <Notifications />
           </IconButton>
-          <IconButton sx={{ color: 'text.primary' }}>
+          <IconButton sx={{ color: 'text.primary' }} onClick={handleMenuOpen}>
             <AccountCircle />
           </IconButton>
         </Toolbar>
       </AppBar>
+
+      {/* User Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 200,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+          },
+        }}
+      >
+        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Admin User
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            admin@hiringhare.com
+          </Typography>
+        </Box>
+        <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>
+          <MenuItemIcon>
+            <Settings fontSize="small" />
+          </MenuItemIcon>
+          Settings
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+          <MenuItemIcon>
+            <Logout fontSize="small" sx={{ color: 'error.main' }} />
+          </MenuItemIcon>
+          Logout
+        </MenuItem>
+      </Menu>
 
       {/* Mobile Drawer */}
       <Drawer

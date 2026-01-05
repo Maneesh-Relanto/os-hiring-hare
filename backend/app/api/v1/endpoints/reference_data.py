@@ -7,9 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import async_session_maker
-from app.models.department import Department
-from app.models.job_level import JobLevel
-from app.models.location import Location
+from app.models.organization import Department, JobLevel, Location
 
 router = APIRouter(prefix="/reference-data")
 
