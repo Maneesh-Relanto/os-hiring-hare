@@ -74,8 +74,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_MINUTE: int = 100
     
     # Logging
-    LOG_LEVEL: str = "INFO"
-    LOG_FORMAT: str = "json"
+    LOG_LEVEL: str = "DEBUG"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_FILE_ENABLED: bool = True
+    LOG_FILE_PATH: str = "logs/app.log"
     
     # Sentry
     SENTRY_DSN: str = ""

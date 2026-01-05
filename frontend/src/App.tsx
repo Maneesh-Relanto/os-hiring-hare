@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Requirements from './pages/Requirements';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -23,7 +24,7 @@ function App() {
                 <Route path="/requirements" element={<Requirements />} />
                 <Route path="/candidates" element={<div>Candidates Page (Coming Soon)</div>} />
                 <Route path="/reports" element={<div>Reports Page (Coming Soon)</div>} />
-                <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
+                <Route path="/settings" element={<Settings />} />
               </Routes>
             </Layout>
           </ProtectedRoute>

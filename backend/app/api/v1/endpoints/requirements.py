@@ -7,7 +7,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_role
 from app.models.user import User
 from app.models.requirement import Requirement
 from app.schemas.requirement import (
@@ -65,9 +65,9 @@ async def list_requirements(
 async def create_requirement(
     requirement_data: RequirementCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("hiring_manager")),
 ) -> Any:
-    """Create a new requirement."""
+    """Create a new requirement. Requires 'hiring_manager' role."""
     # Generate requirement number
     count_result = await db.execute(
         select(func.count()).select_from(Requirement)
@@ -140,9 +140,9 @@ async def update_requirement(
     requirement_id: UUID,
     requirement_data: RequirementUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("hiring_manager")),
 ) -> Any:
-    """Update a requirement."""
+    """Update a requirement. Requires 'hiring_manager' or 'recruiter' role."""
     result = await db.execute(
         select(Requirement).where(
             Requirement.id == requirement_id,
@@ -172,9 +172,9 @@ async def update_requirement(
 async def delete_requirement(
     requirement_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("hiring_manager")),
 ) -> None:
-    """Soft delete a requirement."""
+    """Soft delete a requirement. Requires 'hiring_manager' role."""
     result = await db.execute(
         select(Requirement).where(
             Requirement.id == requirement_id,

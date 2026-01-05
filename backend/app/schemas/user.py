@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.schemas.role import RoleResponse
+
 
 class UserBase(BaseModel):
     """Base user schema with common attributes."""
@@ -61,6 +63,7 @@ class UserResponse(UserBase):
     last_login_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime
+    roles: list[RoleResponse] = []
     
     class Config:
         from_attributes = True

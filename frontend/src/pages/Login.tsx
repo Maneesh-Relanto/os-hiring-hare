@@ -44,8 +44,14 @@ export default function Login() {
     try {
       const response = await authApi.login(formData.email, formData.password);
       
-      // Store tokens and user info
-      setAuth(response.access_token, response.refresh_token, null); // User info will be fetched by axios interceptor
+      // Store tokens FIRST so axios interceptor can use them
+      setAuth(response.access_token, response.refresh_token, null);
+      
+      // Now fetch current user with roles (interceptor will add token)
+      const user = await authApi.getCurrentUser();
+      
+      // Update user info in store
+      setAuth(response.access_token, response.refresh_token, user);
       
       // Redirect to dashboard
       navigate('/dashboard');

@@ -1,4 +1,5 @@
 """Authentication API endpoints."""
+import logging
 from datetime import timedelta
 from typing import Any
 
@@ -15,6 +16,7 @@ from app.services.user_service import UserService
 from app.schemas.user import UserCreate, UserResponse
 from app.schemas.token import Token, TokenRefresh
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 
@@ -52,6 +54,7 @@ async def login(
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     """Login with username/email and password."""
+    logger.info(f"Login attempt for user: {form_data.username}")
     user_service = UserService(db)
     
     # Authenticate user
@@ -61,6 +64,7 @@ async def login(
     )
     
     if not user:
+        logger.warning(f"Failed login attempt for user: {form_data.username} - Invalid credentials")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -68,6 +72,7 @@ async def login(
         )
     
     if not user.is_active:
+        logger.warning(f"Failed login attempt for user: {form_data.username} - Account inactive")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive"
@@ -89,6 +94,8 @@ async def login(
         subject=str(user.id),
         expires_delta=refresh_token_expires
     )
+    
+    logger.info(f"Successful login for user: {form_data.username} (ID: {user.id}, Roles: {[r.name for r in user.roles]})")
     
     return {
         "access_token": access_token,

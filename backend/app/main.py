@@ -1,14 +1,21 @@
 """
 Main FastAPI application entry point
 """
+import logging
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1 import api_router
 from app.core.config import settings
+from app.core.logging_config import setup_logging
+
+# Setup logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -17,14 +24,15 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events
     """
     # Startup
-    print(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    print(f"📝 Environment: {settings.ENVIRONMENT}")
-    print(f"📚 API Docs: http://localhost:8000/docs")
+    logger.info(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info(f"📝 Environment: {settings.ENVIRONMENT}")
+    logger.info(f"📚 API Docs: http://localhost:8000/docs")
+    logger.info(f"🔧 CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
     
     yield
     
     # Shutdown
-    print(f"👋 Shutting down {settings.APP_NAME}")
+    logger.info(f"👋 Shutting down {settings.APP_NAME}")
 
 
 # Create FastAPI application
@@ -46,6 +54,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Request logging middleware
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all HTTP requests"""
+    start_time = time.time()
+    
+    # Log request
+    logger.debug(f"→ {request.method} {request.url.path} - Client: {request.client.host if request.client else 'unknown'}")
+    
+    # Process request
+    response = await call_next(request)
+    
+    # Log response
+    process_time = time.time() - start_time
+    logger.info(f"← {request.method} {request.url.path} - Status: {response.status_code} - Time: {process_time:.3f}s")
+    
+    return response
 
 
 # Root endpoint

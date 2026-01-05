@@ -16,6 +16,7 @@ import {
   Menu,
   MenuItem,
   ListItemIcon as MenuItemIcon,
+  Chip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -37,12 +38,38 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const menuItems = [
+interface MenuItem {
+  text: string;
+  icon: JSX.Element;
+  path: string;
+  roles?: string[]; // If specified, only users with these roles can see this item
+}
+
+const menuItems: MenuItem[] = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Requirements', icon: <Description />, path: '/requirements' },
-  { text: 'Candidates', icon: <People />, path: '/candidates' },
-  { text: 'Reports', icon: <Assessment />, path: '/reports' },
-  { text: 'Settings', icon: <Settings />, path: '/settings' },
+  { 
+    text: 'Requirements', 
+    icon: <Description />, 
+    path: '/requirements',
+    roles: ['admin', 'hiring_manager', 'approver', 'recruiter', 'viewer']
+  },
+  { 
+    text: 'Candidates', 
+    icon: <People />, 
+    path: '/candidates',
+    roles: ['admin', 'recruiter', 'interviewer', 'viewer']
+  },
+  { 
+    text: 'Reports', 
+    icon: <Assessment />, 
+    path: '/reports'
+  },
+  { 
+    text: 'Settings', 
+    icon: <Settings />, 
+    path: '/settings',
+    roles: ['admin']
+  },
 ];
 
 const Layout = ({ children }: LayoutProps) => {
@@ -50,7 +77,7 @@ const Layout = ({ children }: LayoutProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { clearAuth } = useAuthStore();
+  const { user, clearAuth, hasAnyRole } = useAuthStore();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -121,6 +148,11 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Navigation */}
       <List sx={{ px: 2, py: 2 }}>
         {menuItems.map((item) => {
+          // Check if user has required role for this menu item
+          if (item.roles && !hasAnyRole(item.roles)) {
+            return null;
+          }
+          
           const isActive = location.pathname === item.path;
           return (
             <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
@@ -169,9 +201,6 @@ const Layout = ({ children }: LayoutProps) => {
           m: 2,
           borderRadius: 2,
           background: 'rgba(168, 85, 247, 0.08)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
           cursor: 'pointer',
           '&:hover': {
             background: 'rgba(168, 85, 247, 0.15)',
@@ -179,23 +208,56 @@ const Layout = ({ children }: LayoutProps) => {
         }}
         onClick={handleMenuOpen}
       >
-        <Avatar
-          sx={{
-            width: 40,
-            height: 40,
-            background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
-          }}
-        >
-          A
-        </Avatar>
-        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
-            Admin User
-          </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
-            admin@hiringhare.com
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
+            }}
+          >
+            {user?.first_name?.[0] || 'U'}
+          </Avatar>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+              {user ? `${user.first_name} ${user.last_name}` : 'User'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {user?.email || 'email@example.com'}
+            </Typography>
+          </Box>
         </Box>
+        {user && user.roles.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+            {user.roles.slice(0, 2).map((role) => (
+              <Chip
+                key={role.id}
+                label={role.display_name}
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: '0.7rem',
+                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                  color: 'primary.main',
+                  fontWeight: 600,
+                }}
+              />
+            ))}
+            {user.roles.length > 2 && (
+              <Chip
+                label={`+${user.roles.length - 2}`}
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: '0.7rem',
+                  backgroundColor: 'rgba(168, 85, 247, 0.2)',
+                  color: 'primary.main',
+                  fontWeight: 600,
+                }}
+              />
+            )}
+          </Box>
+        )}
       </Box>
     </Box>
   );
@@ -252,7 +314,7 @@ const Layout = ({ children }: LayoutProps) => {
         PaperProps={{
           sx: {
             mt: 1,
-            minWidth: 200,
+            minWidth: 240,
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(20px)',
           },
@@ -260,18 +322,38 @@ const Layout = ({ children }: LayoutProps) => {
       >
         <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Admin User
+            {user ? `${user.first_name} ${user.last_name}` : 'User'}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            admin@hiringhare.com
+            {user?.email || 'email@example.com'}
           </Typography>
+          {user && user.roles.length > 0 && (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
+              {user.roles.map((role) => (
+                <Chip
+                  key={role.id}
+                  label={role.display_name}
+                  size="small"
+                  sx={{
+                    height: 18,
+                    fontSize: '0.65rem',
+                    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                    color: 'primary.main',
+                    fontWeight: 600,
+                  }}
+                />
+              ))}
+            </Box>
+          )}
         </Box>
-        <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>
-          <MenuItemIcon>
-            <Settings fontSize="small" />
-          </MenuItemIcon>
-          Settings
-        </MenuItem>
+        {hasAnyRole(['admin']) && (
+          <MenuItem onClick={() => { handleMenuClose(); navigate('/settings'); }}>
+            <MenuItemIcon>
+              <Settings fontSize="small" />
+            </MenuItemIcon>
+            Settings
+          </MenuItem>
+        )}
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
           <MenuItemIcon>

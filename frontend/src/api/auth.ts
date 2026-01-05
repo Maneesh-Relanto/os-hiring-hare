@@ -13,6 +13,13 @@ export interface RegisterData {
   last_name: string;
 }
 
+export interface Role {
+  id: string;
+  name: string;
+  display_name: string;
+  description?: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -20,6 +27,7 @@ export interface User {
   last_name: string;
   is_active: boolean;
   created_at: string;
+  roles: Role[];
 }
 
 export const authApi = {
