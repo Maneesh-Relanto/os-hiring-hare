@@ -14,8 +14,12 @@ import {
   Tabs,
   Tab,
   CircularProgress,
+  Button,
+  IconButton,
+  Alert,
+  Snackbar,
 } from '@mui/material';
-import { People, Badge } from '@mui/icons-material';
+import { People, Badge, Security, Edit, Save, Close, Check } from '@mui/icons-material';
 import api from '../api/api';
 
 interface Role {
@@ -54,6 +58,36 @@ const Settings = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Permissions matrix state
+  const [editMode, setEditMode] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  
+  // Original permissions data
+  const initialPermissions = [
+    { feature: 'View Dashboard', permissions: [true, true, true, true, true, true] },
+    { feature: 'View Requirements', permissions: [true, true, true, true, false, true] },
+    { feature: 'Create Requirements', permissions: [true, true, false, false, false, false] },
+    { feature: 'Edit Requirements', permissions: [true, true, false, false, false, false] },
+    { feature: 'Delete Requirements', permissions: [true, false, false, false, false, false] },
+    { feature: 'Approve Requirements', permissions: [true, false, true, false, false, false] },
+    { feature: 'View Candidates', permissions: [true, false, false, true, true, true] },
+    { feature: 'Add Candidates', permissions: [true, false, false, true, false, false] },
+    { feature: 'Edit Candidates', permissions: [true, false, false, true, false, false] },
+    { feature: 'Delete Candidates', permissions: [true, false, false, true, false, false] },
+    { feature: 'Schedule Interviews', permissions: [true, true, false, true, true, false] },
+    { feature: 'Conduct Interviews', permissions: [true, false, false, false, true, false] },
+    { feature: 'Submit Feedback', permissions: [true, true, true, true, true, false] },
+    { feature: 'View Reports', permissions: [true, true, true, false, false, true] },
+    { feature: 'Export Data', permissions: [true, true, false, false, false, false] },
+    { feature: 'Manage Users', permissions: [true, false, false, false, false, false] },
+    { feature: 'Manage Roles', permissions: [true, false, false, false, false, false] },
+    { feature: 'System Settings', permissions: [true, false, false, false, false, false] },
+  ];
+  
+  const [permissions, setPermissions] = useState(initialPermissions);
+  const [originalPermissions, setOriginalPermissions] = useState(initialPermissions);
 
   useEffect(() => {
     fetchData();
@@ -71,6 +105,57 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTogglePermission = (featureIndex: number, roleIndex: number) => {
+    if (!editMode) return;
+    
+    const newPermissions = permissions.map((perm, idx) => {
+      if (idx === featureIndex) {
+        const newPerms = [...perm.permissions];
+        newPerms[roleIndex] = !newPerms[roleIndex];
+        return { ...perm, permissions: newPerms };
+      }
+      return perm;
+    });
+    
+    setPermissions(newPermissions);
+    setHasChanges(true);
+  };
+
+  const handleEnterEditMode = () => {
+    setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
+    setEditMode(true);
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      // TODO: API call to save permissions
+      // await api.post('/api/v1/permissions/update', permissions);
+      
+      setOriginalPermissions(permissions);
+      setEditMode(false);
+      setHasChanges(false);
+      setSnackbar({ open: true, message: 'Permissions saved successfully!', severity: 'success' });
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Failed to save permissions', severity: 'error' });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (hasChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+        setPermissions(originalPermissions);
+        setEditMode(false);
+        setHasChanges(false);
+      }
+    } else {
+      setEditMode(false);
+    }
+  };
+
+  const isPermissionChanged = (featureIndex: number, roleIndex: number) => {
+    return permissions[featureIndex].permissions[roleIndex] !== originalPermissions[featureIndex].permissions[roleIndex];
   };
 
   return (
@@ -100,6 +185,7 @@ const Settings = () => {
           >
             <Tab icon={<People />} label="Users" iconPosition="start" />
             <Tab icon={<Badge />} label="Roles" iconPosition="start" />
+            <Tab icon={<Security />} label="Permissions Matrix" iconPosition="start" />
           </Tabs>
 
           <TabPanel value={tabValue} index={0}>
@@ -240,6 +326,180 @@ const Settings = () => {
             </>
           )}
         </TabPanel>
+
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                Role Permissions Matrix
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {editMode ? 'Click on permissions to toggle access. Click Save to apply changes.' : 'Overview of all roles and their access to system features'}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {!editMode ? (
+                <Button
+                  variant="contained"
+                  startIcon={<Edit />}
+                  onClick={handleEnterEditMode}
+                  sx={{
+                    background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #5558E3 0%, #DB2777 100%)',
+                    },
+                  }}
+                >
+                  Edit Permissions
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Close />}
+                    onClick={handleCancelEdit}
+                    sx={{ fontWeight: 600 }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<Save />}
+                    onClick={handleSaveChanges}
+                    disabled={!hasChanges}
+                    sx={{
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      fontWeight: 600,
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                      },
+                      '&:disabled': {
+                        background: 'grey.300',
+                      },
+                    }}
+                  >
+                    Save Changes
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Box>
+
+          {hasChanges && editMode && (
+            <Alert severity="warning" sx={{ mb: 3, fontWeight: 600 }}>
+              You have unsaved changes. Click "Save Changes" to apply or "Cancel" to discard.
+            </Alert>
+          )}
+          
+          <TableContainer sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'auto' }}>
+            <Table sx={{ minWidth: 900 }}>
+              <TableHead>
+                <TableRow sx={{ bgcolor: 'grey.50' }}>
+                  <TableCell 
+                    sx={{ 
+                      fontWeight: 700, 
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      position: 'sticky',
+                      left: 0,
+                      bgcolor: 'grey.50',
+                      zIndex: 1,
+                      minWidth: 220,
+                    }}
+                  >
+                    Feature / Permission
+                  </TableCell>
+                  {['Admin', 'Hiring Manager', 'Approver', 'Recruiter', 'Interviewer', 'Viewer'].map((role) => (
+                    <TableCell 
+                      key={role}
+                      align="center"
+                      sx={{ 
+                        fontWeight: 700, 
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        minWidth: 120,
+                      }}
+                    >
+                      {role}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {permissions.map((row, featureIndex) => (
+                  <TableRow 
+                    key={row.feature}
+                    sx={{ 
+                      '&:hover': { bgcolor: editMode ? 'rgba(99, 102, 241, 0.04)' : 'rgba(0, 0, 0, 0.02)' },
+                      bgcolor: featureIndex % 2 === 0 ? 'transparent' : 'rgba(0, 0, 0, 0.02)',
+                    }}
+                  >
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 600,
+                        position: 'sticky',
+                        left: 0,
+                        bgcolor: featureIndex % 2 === 0 ? 'background.paper' : 'rgba(0, 0, 0, 0.02)',
+                        borderRight: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      {row.feature}
+                    </TableCell>
+                    {row.permissions.map((hasPermission, roleIndex) => {
+                      const isChanged = isPermissionChanged(featureIndex, roleIndex);
+                      
+                      return (
+                        <TableCell key={roleIndex} align="center">
+                          {editMode ? (
+                            <IconButton
+                              onClick={() => handleTogglePermission(featureIndex, roleIndex)}
+                              sx={{
+                                width: 36,
+                                height: 36,
+                                bgcolor: hasPermission ? 'success.main' : 'grey.200',
+                                color: hasPermission ? 'white' : 'grey.500',
+                                border: isChanged ? '3px solid' : '1px solid',
+                                borderColor: isChanged ? 'warning.main' : 'transparent',
+                                boxShadow: isChanged ? '0 0 0 3px rgba(251, 191, 36, 0.2)' : 'none',
+                                '&:hover': {
+                                  bgcolor: hasPermission ? 'success.dark' : 'grey.300',
+                                  transform: 'scale(1.1)',
+                                },
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <Check sx={{ fontSize: 18, fontWeight: 700 }} />
+                            </IconButton>
+                          ) : (
+                            <Chip 
+                              label={hasPermission ? '✓' : '✗'}
+                              size="small" 
+                              sx={{ 
+                                bgcolor: hasPermission ? 'success.main' : 'grey.200',
+                                color: hasPermission ? 'white' : 'grey.500',
+                                fontWeight: 700,
+                                fontSize: '1rem',
+                                width: 32,
+                                height: 32,
+                                '& .MuiChip-label': {
+                                  px: 0,
+                                },
+                              }}
+                            />
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </TabPanel>
         </Paper>
 
         <Paper elevation={0} sx={{ mt: 3, p: 4, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
@@ -284,6 +544,21 @@ const Settings = () => {
           ))}
         </Box>
       </Paper>
+      
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+          sx={{ width: '100%', fontWeight: 600 }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       </Container>
     </Box>
   );

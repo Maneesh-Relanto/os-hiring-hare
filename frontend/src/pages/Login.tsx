@@ -43,34 +43,21 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    console.log('🔐 Login attempt with:', email);
-
     try {
-      console.log('📡 Calling authApi.login...');
       const response = await authApi.login(email, password);
-      console.log('✅ Login response received:', { token_type: response.token_type });
       
       // Store tokens FIRST so axios interceptor can use them
       setAuth(response.access_token, response.refresh_token, null);
-      console.log('💾 Tokens stored in auth store');
       
       // Now fetch current user with roles (interceptor will add token)
-      console.log('👤 Fetching current user...');
       const user = await authApi.getCurrentUser();
-      console.log('✅ User data received:', { email: user.email, roles: user.roles.length });
       
       // Update user info in store
       setAuth(response.access_token, response.refresh_token, user);
-      console.log('🎉 Login successful, redirecting to dashboard...');
       
       // Redirect to dashboard
       navigate('/dashboard');
     } catch (err: unknown) {
-      console.error('❌ Login error:', err);
-      if (err && typeof err === 'object' && 'response' in err) {
-        console.error('Response data:', (err as any).response?.data);
-        console.error('Response status:', (err as any).response?.status);
-      }
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as any).response?.data?.detail 
         : 'Invalid email or password. Please try again.';
@@ -278,7 +265,10 @@ export default function Login() {
                 {[
                   { email: 'admin@hiringhare.com', role: 'Administrator', password: 'Admin@2024' },
                   { email: 'manager@hiringhare.com', role: 'Hiring Manager', password: 'Manager@2024' },
+                  { email: 'approver@hiringhare.com', role: 'Approver', password: 'Approver@2024' },
                   { email: 'recruiter@hiringhare.com', role: 'Recruiter', password: 'Recruiter@2024' },
+                  { email: 'interviewer@hiringhare.com', role: 'Interviewer', password: 'Interviewer@2024' },
+                  { email: 'viewer@hiringhare.com', role: 'Viewer', password: 'Viewer@2024' },
                 ].map((account) => (
                   <Box
                     key={account.email}

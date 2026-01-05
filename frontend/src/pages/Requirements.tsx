@@ -173,53 +173,64 @@ const Requirements = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography
-            variant="h4"
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', py: 4 }}>
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
+          <Box>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                mb: 1,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Requirements
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+              Manage recruitment requirements and job positions
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setOpenDialog(true)}
+            size="large"
             sx={{
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              mb: 1,
+              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+              px: 3,
+              py: 1.5,
+              fontWeight: 600,
+              boxShadow: '0 8px 20px rgba(99, 102, 241, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5558E3 0%, #DB2777 100%)',
+                boxShadow: '0 12px 28px rgba(99, 102, 241, 0.45)',
+                transform: 'translateY(-2px)',
+              },
+              transition: 'all 0.3s ease',
             }}
           >
-            Requirements
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Manage recruitment requirements and job positions
-          </Typography>
+            New Requirement
+          </Button>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => setOpenDialog(true)}
+
+        {/* Filters */}
+        <Paper
+          elevation={0}
           sx={{
-            background: 'linear-gradient(135deg, #A855F7 0%, #EC4899 100%)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #9333EA 0%, #DB2777 100%)',
-            },
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            background: 'background.paper',
           }}
         >
-          New Requirement
-        </Button>
-      </Box>
-
-      {/* Filters */}
-      <Paper
-        sx={{
-          p: 3,
-          mb: 3,
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: 3,
-        }}
-      >
-        <Grid container spacing={2}>
+          <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
@@ -264,48 +275,77 @@ const Requirements = () => {
             </Button>
           </Grid>
         </Grid>
-      </Paper>
+        </Paper>
 
-      {/* Loading State */}
-      {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {/* Error State */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          Failed to load requirements. Please try again.
-        </Alert>
-      )}
-
-      {/* Requirements Table */}
-      {!isLoading && !error && (
-        <>
-          <TableContainer
-            component={Paper}
-            sx={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: 3,
-              mb: 3,
+        {/* Loading State */}
+        {isLoading && (
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              py: 12 
             }}
           >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 600 }}>Req. Number</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Position</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Priority</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Created</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }} align="center">
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
+            <CircularProgress 
+              size={60} 
+              thickness={4}
+              sx={{
+                color: 'primary.main',
+                mb: 3,
+              }}
+            />
+            <Typography variant="h6" color="text.secondary" fontWeight={600}>
+              Loading requirements...
+            </Typography>
+          </Box>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3,
+              borderRadius: 2,
+              '& .MuiAlert-message': {
+                fontSize: '1rem',
+                fontWeight: 500,
+              }
+            }}
+          >
+            Failed to load requirements. Please try again.
+          </Alert>
+        )}
+
+        {/* Requirements Table */}
+        {!isLoading && !error && (
+          <>
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                mb: 3,
+                overflow: 'hidden',
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ bgcolor: 'grey.50' }}>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Req. Number</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Position</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Priority</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Created</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} align="center">
+                      Actions
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
               <TableBody>
                 {data?.items.length === 0 ? (
                   <TableRow>
@@ -321,17 +361,21 @@ const Requirements = () => {
                       key={req.id}
                       sx={{
                         '&:hover': {
-                          backgroundColor: 'rgba(168, 85, 247, 0.05)',
+                          bgcolor: 'rgba(99, 102, 241, 0.04)',
+                          transform: 'scale(1.001)',
                         },
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
                       }}
                     >
-                      <TableCell>{req.requirement_number}</TableCell>
-                      <TableCell sx={{ fontWeight: 500 }}>{req.position_title}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: 'primary.main' }}>{req.requirement_number}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.95rem' }}>{req.position_title}</TableCell>
                       <TableCell>
                         <Chip
                           label={formatEnumValue(req.priority)}
                           size="small"
                           color={getPriorityColor(req.priority)}
+                          sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>
@@ -339,6 +383,7 @@ const Requirements = () => {
                           label={formatEnumValue(req.status)}
                           size="small"
                           color={getStatusColor(req.status)}
+                          sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                         />
                       </TableCell>
                       <TableCell>{new Date(req.created_at).toLocaleDateString()}</TableCell>
@@ -394,7 +439,8 @@ const Requirements = () => {
           />
         </DialogContent>
       </Dialog>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 
