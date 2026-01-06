@@ -10,7 +10,7 @@
 > A comprehensive recruitment requirement tracking system designed to help corporate organizations manage their hiring needs from initial identification through successful candidate onboarding. Built with vibrant UI/UX featuring purple and teal gradients with glassmorphic design.
 
 **Current Version:** 0.1.0 (MVP Development)  
-**Last Updated:** January 5, 2026
+**Last Updated:** January 6, 2026
 
 ---
 
@@ -128,12 +128,27 @@
   - Connected to backend API via React Query
   - Real-time data fetching and mutations
 - ✅ Frontend build successful (794KB JS, 15KB CSS)
+- ✅ **Candidates Management Module (COMPLETED ✅)**
+  - Candidate model with 18 fields
+  - Database migration applied (d14639c18ccb)
+  - CRUD API endpoints functional
+  - List page with filters and status chips
+  - Create/Edit modal form
+  - 20 realistic test candidates seeded
+  - Connected to backend via React Query
+- ✅ **Authentication & Token Management (COMPLETED ✅)**
+  - JWT token storage in Zustand persist middleware
+  - Axios interceptors for automatic token injection
+  - Token refresh on 401 errors
+  - Secure logout with storage cleanup
 
 #### Infrastructure
 - ✅ PostgreSQL 17.6 running on localhost:5432
 - ✅ Backend server running on port 8000
 - ✅ Frontend dev server running on port 3000
 - ✅ Both servers operational and communicating
+- ✅ Alembic migrations system set up
+- ✅ Database seeding scripts created
 
 ### **Current Status** 🚀
 
@@ -142,15 +157,22 @@
   - Health check: http://localhost:8000/health
   - API docs: http://localhost:8000/docs
   - Reference data API responding correctly
+  - Requirements CRUD working
+  - **Candidates CRUD working (NEW! ✅)**
+  - Authentication endpoints functional
 - Frontend accessible at http://localhost:3000
   - Dashboard rendering with mock data
-  - Requirements page ready to fetch from API
+  - Requirements page fully functional with API
+  - **Candidates page fully functional with API (NEW! ✅)**
+  - Login/Logout working
   - Responsive layout working
 
 **Test Data in Database:**
 - 8 departments, 8 job levels, 7 locations
 - 1 test requirement (REQ-00001 - Senior Software Engineer)
-- 1 test user (admin@hiringhare.com)
+- 3 test users (admin, manager, recruiter)
+- **20 test candidates across 7 statuses (NEW! ✅)**
+- 6 roles with 18 permissions configured
 
 ---
 
@@ -179,31 +201,47 @@
 - [x] Delete requirement
 
 #### Reference Data (Backend)
-- [x] Department, JobLevel, Location models
-- [x] Reference data API endpoints
-- [x] Database seeding script
-- [x] Test data loaded
-
-#### Frontend Foundation
-- [x] React + TypeScript + Vite setup
-- [x] Material-UI design system
-- [x] Vibrant purple/teal theme
-- [x] React Query for API calls
-- [x] Responsive layout with sidebar
-- [x] Dashboard page (mock data)
-- [x] Requirements list page
-- [x] Create/Edit requirement form (4 tabs)
-
-### 🔄 IN PROGRESS (MVP Completion)
-
-#### Dashboard Integration
-- [ ] Replace mock data with real API calls
-- [ ] Fetch total requirements count
-- [ ] Calculate status breakdown (Draft/Pending/Active)
-- [ ] Display recent activity from database
+- [ ] Add quick action cards
 
 #### Authentication UI
-- [ ] Login page with gradient design
+- [x] Login page with gradient design
+- [x] Token refresh interceptor
+- [x] Logout functionality in UI
+- [x] Protected route implementation
+- [ ] Register page (optional for MVP)
+- [ ] User profile dropdown
+- [ ] Password reset flow
+
+#### Requirements Management Enhancements
+- [x] Connect form dropdowns to reference data API
+- [x] Validate authentication on requirements page
+- [x] Add error handling for failed API calls
+- [x] Add loading states
+- [ ] Add success/error notifications (toast)
+- [ ] Add bulk operations
+
+### ✅ COMPLETED (MVP Core Features)
+
+#### Candidates Management
+- [x] Candidate model and database table (18 fields)
+- [x] Candidate CRUD API endpoints (backend/app/api/v1/endpoints/candidates.py)
+- [x] Candidate list page with filters
+- [x] Add candidate form (modal)
+- [x] Edit candidate functionality
+- [x] Delete candidate functionality
+- [x] Link candidates to requirements
+- [x] Status management (7 statuses with color coding)
+- [x] Skills as JSONB array
+- [x] Search by name/email
+- [x] 20 realistic test candidates seeded
+
+### 📅 REQUIRED FOR MVP (Critical Priority)
+
+#### Settings & Permissions
+- [ ] Permissions matrix API (GET/POST endpoints)
+- [ ] Connect Settings page to backend
+- [ ] Role-based access control enforcement
+- [ ] Audit logging for permission changesign
 - [ ] Register page (optional for MVP)
 - [ ] Protected route implementation
 - [ ] Token refresh interceptor
@@ -264,9 +302,10 @@
 - **Language**: Python 3.13.7
 - **Database**: PostgreSQL 17.6
 - **ORM**: SQLAlchemy 2.0.45 (async)
-- **Migration**: Alembic 1.16.5
-- **Authentication**: python-jose 3.5.0 + bcrypt 4.3.0
-- **Server**: Uvicorn 0.40.0
+- **Migration**: Alembic 1.16.5**candidates**, approvals, job_postings)
+- **ENUMs**: 6 (RequirementStatus, RequirementType, EmploymentType, WorkMode, Priority, **CandidateStatus**)
+- **Relationships**: Many-to-many, one-to-many with proper foreign keys
+- **Migrations**: Alembic-managed, current head: d14639c18ccb
 - **Database Driver**: asyncpg 0.31.0
 
 ### Frontend
@@ -278,6 +317,15 @@
 - **State Management**: Zustand 4.5.0
 - **Routing**: React Router 6.21.3
 - **Date Handling**: date-fns 3.0.6
+
+> **📖 For detailed setup instructions, see [SETUP.md](SETUP.md)**
+
+### Quick Links
+
+- **[Complete Setup Guide](SETUP.md)** - Step-by-step installation instructions
+- **[API Documentation](http://localhost:8000/docs)** - Interactive API explorer
+- **[Code Changes Summary](COMMIT_SUMMARY.md)** - Recent development history
+- **[Project Reference](docs/project-reference.md)** - Comprehensive documentation
 
 ### Database Schema
 - **Tables**: 12 (users, roles, permissions, user_roles, role_permissions, departments, job_levels, locations, requirements, approvals, candidate_applications, job_postings)
@@ -378,9 +426,19 @@ npm run dev
 
 ### Quick Test
 
-1. **Test Backend API**:
+1. **Test Backauthentication working):
+   - Email: admin@hiringhare.com
+   - Password: Admin@2024
+   - Or: manager@hiringhare.com / Manager@2024
+   - Or: recruiter@hiringhare.com / Recruiter@2024
+
+4. **Test Candidates Page**:
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing
+# Backend test
+Invoke-WebRequest -Uri "http://localhost:8000/api/v1/candidates" -Headers @{Authorization="Bearer <token>"} -UseBasicParsing
+```
+
+**Expected:** 20 test candidates with diverse statusesttp://localhost:8000/health" -UseBasicParsing
 ```
 
 2. **Test Reference Data**:
@@ -661,20 +719,72 @@ SELECT requirement_number, position_title, status FROM requirements;
 2. ✅ Database is set up with all tables and reference data
 3. ✅ Authentication system works (register/login/JWT)
 4. ✅ Requirements can be created, listed, updated, deleted
-5. 🔄 Dashboard shows REAL data from database (IN PROGRESS)
-6. 🔄 Authentication UI is functional (IN PROGRESS)
-7. ⏳ Candidates can be added and linked to requirements (NEXT)
-8. ⏳ Basic approval workflow works (submit/approve/reject) (NEXT)
-9. ⏳ Job postings can be created from requirements (NEXT)
-10. ⏳ Basic testing completed (NEXT)
+5. ✅ **Candidates can be added and linked to requirements (COMPLETED!)**
+6. ✅ **Token-based authentication UI is functional (COMPLETED!)**
+7. 🔄 Dashboard shows REAL data from database (IN PROGRESS)
+8. ⏳ Permissions matrix connected to backend API (NEXT)
+9. ⏳ Basic approval workflow works (submit/approve/reject) (NEXT)
+10. ⏳ Job postings can be created from requirements (NEXT)
 
 **Estimated MVP Completion**: Mid-January 2026
 
 ---
 
+## 🔧 Recent Updates (January 6, 2026)
+
+### Major Fixes Applied ✅
+
+1. **Resolved 403 Forbidden Error on Candidates Page**
+   - **Issue**: Frontend axios reading JWT tokens from wrong localStorage keys
+   - **Root Cause**: Zustand persist middleware stores tokens in 'auth-storage' JSON object, not individual keys
+   - **Fix**: Updated axios interceptors to parse 'auth-storage' and extract tokens correctly
+   - **Impact**: Candidates page now loads successfully with 200 OK response
+
+2. **Fixed SQLAlchemy Model Conflict**
+   - **Issue**: CandidateApplication placeholder conflicting with Candidate model
+   - **Root Cause**: Both models used `back_populates="candidates"` with Requirement model
+   - **Fix**: Commented out CandidateApplication placeholder, updated imports
+   - **Impact**: Alembic autogenerate now detects models correctly
+
+3. **Created Missing Candidates Table**
+   - **Issue**: Database had `candidate_applications` placeholder but no `candidates` table
+   - **Root Cause**: Empty migration file (b56b9fba438e) generated during model conflict
+   - **Fix**: Generated new migration d14639c18ccb with candidates table
+   - **Impact**: Candidates CRUD operations now work correctly
+
+4. **Fixed Windows Encoding Issues**
+   - **Issue**: UnicodeEncodeError on emoji characters in backend logs
+   - **Root Cause**: Windows cmd.exe cp1252 codec cannot encode Unicode emojis
+   - **Fix**: Removed emoji characters from logging statements
+   - **Impact**: Backend logs display correctly without errors
+
+5. **Added 20 Realistic Test Candidates**
+   - Created seed script with diverse candidate profiles
+   - Status distribution: new(7), screening(5), interviewing(4), offered(1), hired(1), rejected(1), withdrawn(1)
+   - Realistic data: names, companies, skills, LinkedIn URLs
+   - **Impact**: Candidates page displays meaningful test data
+
+6. **Repository Cleanup**
+   - Created `/temp` folder for temporary debug scripts
+   - Updated `.gitignore` to exclude temporary test files
+   - Created `SETUP.md` with comprehensive installation guide
+   - Created `COMMIT_SUMMARY.md` documenting all code changes
+   - **Impact**: Clean repository ready for version control
+
+### Files Modified
+- `backend/app/main.py` - Removed emoji logging
+- `backend/app/models/__init__.py` - Fixed imports
+- `backend/app/models/placeholder.py` - Commented CandidateApplication
+- `frontend/src/services/api.ts` - Fixed token storage access
+- `backend/scripts/seed_candidates.py` - Added test data
+- `backend/alembic/versions/d14639c18ccb_*.py` - New migration
+- `.gitignore` - Updated exclusion patterns
+
+---
+
 ## 📊 Quick Recap Summary
 
-### What We've Achieved (Jan 3-5, 2026)
+### What We've Achieved (Jan 3-6, 2026)
 
 **Day 1 - Planning & Architecture** ✅
 - Complete business analysis (80+ requirements)
@@ -686,6 +796,29 @@ SELECT requirement_number, position_title, status FROM requirements;
 - FastAPI setup with 20+ files
 - SQLAlchemy models for all entities
 - JWT authentication system
+- Requirements CRUD API
+- Reference data API
+- Database seeding scripts
+- PostgreSQL setup and connection
+
+**Day 3 - Frontend Foundation** ✅
+- React + TypeScript setup
+- Material-UI with custom theme
+- Vibrant purple/teal design system
+- React Query integration
+- Requirements management UI
+- Dashboard with mock data
+- Responsive layout with sidebar
+
+**Day 4 - Bug Fixes & Candidates Module** ✅ (January 6, 2026)
+- Fixed 403 Forbidden error (token storage issue)
+- Resolved SQLAlchemy model conflict
+- Created candidates table migration
+- Built Candidates CRUD functionality
+- Seeded 20 realistic test candidates
+- Updated axios interceptors for Zustand
+- Repository cleanup and documentation
+- Created comprehensive SETUP.md guide
 - Requirements CRUD API
 - Reference data API
 - Database seeding
