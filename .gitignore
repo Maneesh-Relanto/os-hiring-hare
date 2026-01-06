@@ -19,6 +19,16 @@ scripts/*.ps1
 scripts/*_PRIVATE.sql
 scripts/*.bat
 
+# Temporary files folder (do not commit)
+temp/
+
+# Temporary test/debug scripts in backend root (do not commit)
+backend/check_*.py
+backend/test_*.py
+backend/test_*.ps1
+backend/list_*.py
+backend/debug_*.py
+
 # Backend environment files
 backend/.env
 backend/.env.local

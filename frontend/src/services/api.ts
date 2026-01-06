@@ -13,9 +13,18 @@ export const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Read from Zustand persisted storage
+    const authStorage = localStorage.getItem('auth-storage');
+    if (authStorage) {
+      try {
+        const { state } = JSON.parse(authStorage);
+        const token = state?.accessToken;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
     }
     return config;
   },
@@ -33,15 +42,31 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
+        // Read refresh token from Zustand storage
+        const authStorage = localStorage.getItem('auth-storage');
+        let refreshToken = null;
+        if (authStorage) {
+          const { state } = JSON.parse(authStorage);
+          refreshToken = state?.refreshToken;
+        }
+        
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
             refresh_token: refreshToken,
           });
 
           const { access_token, refresh_token: newRefreshToken } = response.data;
-          localStorage.setItem('access_token', access_token);
-          localStorage.setItem('refresh_token', newRefreshToken);
+          
+          // Update Zustand storage
+          const updatedState = {
+            state: {
+              ...JSON.parse(authStorage).state,
+              accessToken: access_token,
+              refreshToken: newRefreshToken,
+            },
+            version: 0,
+          };
+          localStorage.setItem('auth-storage', JSON.stringify(updatedState));
 
           // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
@@ -49,8 +74,7 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('auth-storage');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
@@ -75,8 +99,7 @@ export const authApi = {
     api.get('/api/v1/auth/me'),
   
   logout: () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('auth-storage');
     return Promise.resolve();
   },
 };

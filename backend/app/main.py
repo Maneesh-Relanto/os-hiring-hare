@@ -24,15 +24,15 @@ async def lifespan(app: FastAPI):
     Lifespan context manager for startup and shutdown events
     """
     # Startup
-    logger.info(f"🚀 Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    logger.info(f"📝 Environment: {settings.ENVIRONMENT}")
-    logger.info(f"📚 API Docs: http://localhost:8000/docs")
-    logger.info(f"🔧 CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
+    logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info(f"Environment: {settings.ENVIRONMENT}")
+    logger.info(f"API Docs: http://localhost:8000/docs")
+    logger.info(f"CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
     
     yield
     
     # Shutdown
-    logger.info(f"👋 Shutting down {settings.APP_NAME}")
+    logger.info(f"Shutting down {settings.APP_NAME}")
 
 
 # Create FastAPI application

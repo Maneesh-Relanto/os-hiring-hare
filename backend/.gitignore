@@ -48,6 +48,21 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Logs
+logs/
+*.log
+
+# Temporary test/debug scripts (do not commit)
+check_*.py
+test_*.py
+test_*.ps1
+list_*.py
+debug_*.py
+
+# Alembic - keep migrations but ignore autogenerate backup files
+alembic/versions/*.pyc
+alembic/versions/__pycache__/
 coverage.xml
 *.cover
 
