@@ -22,6 +22,14 @@ scripts/*.bat
 # Temporary files folder (do not commit)
 temp/
 
+# Internal development tracking (do not commit)
+PROGRESS.md
+RBAC_REUSABILITY_ANALYSIS.md
+*_ANALYSIS.md
+*_INTERNAL.md
+NOTES.md
+TODO_PRIVATE.md
+
 # Temporary test/debug scripts in backend root (do not commit)
 backend/check_*.py
 backend/test_*.py

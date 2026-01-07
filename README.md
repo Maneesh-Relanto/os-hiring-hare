@@ -25,7 +25,6 @@
 - **[📖 Full Documentation](docs/project-reference.md)** - Complete project reference
 - **[🤝 Contributing](CONTRIBUTING.md)** - How to contribute
 - **[📝 Recent Changes](COMMIT_SUMMARY.md)** - Latest development updates
-- **[🔐 RBAC Analysis](RBAC_REUSABILITY_ANALYSIS.md)** - Module architecture review
 
 ---
 
@@ -108,7 +107,7 @@ cd os-hiring-hare
 - ✅ RBAC architecture is **integrated** into the application
 - ✅ Roles, permissions, and access control work perfectly
 - ⚠️ RBAC is **not yet extracted as standalone module**
-- 📦 If you need just RBAC, copy the relevant files (see [RBAC_REUSABILITY_ANALYSIS.md](RBAC_REUSABILITY_ANALYSIS.md))
+- 📦 If you need just RBAC, you'll need to copy relevant files and adapt them
 
 **Support:**
 - 📖 Read the [documentation](docs/project-reference.md)
