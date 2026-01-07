@@ -5,6 +5,7 @@ import Requirements from './pages/Requirements';
 import RequirementDetail from './pages/RequirementDetail';
 import Approvals from './pages/Approvals';
 import Candidates from './pages/Candidates';
+import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/requirements/:id" element={<RequirementDetail />} />
                 <Route path="/approvals" element={<Approvals />} />
                 <Route path="/candidates" element={<Candidates />} />
+                <Route path="/users" element={<Users />} />
                 <Route path="/reports" element={<div>Reports Page (Coming Soon)</div>} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>

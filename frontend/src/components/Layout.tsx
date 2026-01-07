@@ -29,6 +29,7 @@ import {
   AccountCircle,
   Logout,
   PendingActions,
+  SupervisorAccount,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -70,6 +71,12 @@ const menuItems: MenuItem[] = [
     text: 'Reports', 
     icon: <Assessment />, 
     path: '/reports'
+  },
+  { 
+    text: 'Users', 
+    icon: <SupervisorAccount />, 
+    path: '/users',
+    roles: ['admin']
   },
   { 
     text: 'Settings', 
