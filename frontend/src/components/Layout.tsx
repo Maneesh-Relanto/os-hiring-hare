@@ -34,7 +34,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
-const drawerWidth = 260;
+const drawerWidth = 80;
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -123,46 +123,35 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Logo */}
       <Box
         sx={{
-          p: 3,
+          p: 2,
           display: 'flex',
           alignItems: 'center',
-          gap: 2,
+          justifyContent: 'center',
         }}
       >
         <Box
           sx={{
-            width: 48,
-            height: 48,
-            borderRadius: 3,
+            width: 44,
+            height: 44,
+            borderRadius: 2,
             background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 800,
-            fontSize: 22,
+            fontSize: 18,
             color: 'white',
             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
           }}
         >
           HH
         </Box>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 800,
-            background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          Hiring Hare
-        </Typography>
       </Box>
 
       <Divider sx={{ opacity: 0.1 }} />
 
       {/* Navigation */}
-      <List sx={{ px: 2, py: 2 }}>
+      <List sx={{ px: 0.5, py: 1 }}>
         {menuItems.map((item) => {
           // Check if user has required role for this menu item
           if (item.roles && !hasAnyRole(item.roles)) {
@@ -171,12 +160,18 @@ const Layout = ({ children }: LayoutProps) => {
           
           const isActive = location.pathname === item.path;
           return (
-            <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 onClick={() => navigate(item.path)}
                 sx={{
-                  borderRadius: 2,
-                  py: 1.5,
+                  borderRadius: 1.5,
+                  py: 1,
+                  px: 0.5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: 64,
                   backgroundColor: isActive
                     ? 'rgba(99, 102, 241, 0.1)'
                     : 'transparent',
@@ -191,21 +186,31 @@ const Layout = ({ children }: LayoutProps) => {
                   transition: 'all 0.2s ease',
                 }}
               >
-                <ListItemIcon
+                <Box
                   sx={{
                     color: isActive ? 'primary.main' : 'text.secondary',
-                    minWidth: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 0.5,
+                    '& svg': {
+                      fontSize: '1.5rem',
+                    },
                   }}
                 >
                   {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    fontWeight: isActive ? 700 : 500,
+                </Box>
+                <Typography
+                  sx={{
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: '0.65rem',
                     color: isActive ? 'primary.main' : 'text.primary',
+                    textAlign: 'center',
+                    lineHeight: 1.2,
                   }}
-                />
+                >
+                  {item.text}
+                </Typography>
               </ListItemButton>
             </ListItem>
           );
@@ -213,83 +218,6 @@ const Layout = ({ children }: LayoutProps) => {
       </List>
 
       <Box sx={{ flexGrow: 1 }} />
-
-      {/* User Profile */}
-      <Box
-        sx={{
-          p: 2.5,
-          m: 2,
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%)',
-          border: '1px solid',
-          borderColor: 'divider',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(236, 72, 153, 0.12) 100%)',
-            borderColor: 'primary.main',
-            transform: 'translateY(-2px)',
-          },
-        }}
-        onClick={handleMenuOpen}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Avatar
-            sx={{
-              width: 44,
-              height: 44,
-              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
-              fontWeight: 700,
-              fontSize: '1.1rem',
-            }}
-          >
-            {user?.first_name?.[0] || 'U'}
-          </Avatar>
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
-              {user ? `${user.first_name} ${user.last_name}` : 'User'}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" noWrap>
-              {user?.email || 'email@example.com'}
-            </Typography>
-          </Box>
-        </Box>
-        {user && user.roles.length > 0 && (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
-            {user.roles.slice(0, 2).map((role) => (
-              <Chip
-                key={role.id}
-                label={role.display_name}
-                size="small"
-                sx={{
-                  height: 22,
-                  fontSize: '0.7rem',
-                  backgroundColor: 'white',
-                  color: 'primary.main',
-                  fontWeight: 700,
-                  border: '1px solid',
-                  borderColor: 'primary.main',
-                }}
-              />
-            ))}
-            {user.roles.length > 2 && (
-              <Chip
-                label={`+${user.roles.length - 2}`}
-                size="small"
-                sx={{
-                  height: 22,
-                  fontSize: '0.7rem',
-                  backgroundColor: 'white',
-                  color: 'primary.main',
-                  fontWeight: 700,
-                  border: '1px solid',
-                  borderColor: 'primary.main',
-                }}
-              />
-            )}
-          </Box>
-        )}
-      </Box>
     </Box>
   );
 
@@ -320,14 +248,64 @@ const Layout = ({ children }: LayoutProps) => {
             <MenuIcon />
           </IconButton>
 
-          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', ml: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Hiring Hare
+            </Typography>
+          </Box>
 
           <IconButton sx={{ color: 'text.primary' }}>
             <Notifications />
           </IconButton>
-          <IconButton sx={{ color: 'text.primary' }} onClick={handleMenuOpen}>
-            <AccountCircle />
-          </IconButton>
+          
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              ml: 2,
+              px: 2,
+              py: 0.75,
+              borderRadius: 2,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                background: 'rgba(99, 102, 241, 0.05)',
+              },
+            }}
+            onClick={handleMenuOpen}
+          >
+            <Box sx={{ textAlign: 'right', display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem', lineHeight: 1.2 }}>
+                {user ? `${user.first_name} ${user.last_name}` : 'User'}
+              </Typography>
+              {user && user.roles.length > 0 && (
+                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+                  {user.roles[0].display_name}
+                </Typography>
+              )}
+            </Box>
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+              }}
+            >
+              {user?.first_name?.[0] || 'U'}
+            </Avatar>
+          </Box>
         </Toolbar>
       </AppBar>
 
