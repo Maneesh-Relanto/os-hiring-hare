@@ -1,6 +1,6 @@
 """Candidate schemas for API requests and responses."""
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
@@ -20,7 +20,7 @@ class CandidateBase(BaseModel):
     current_company: Optional[str] = Field(None, max_length=200)
     current_title: Optional[str] = Field(None, max_length=200)
     total_experience_years: Optional[str] = Field(None, max_length=20)
-    skills: Optional[dict] = Field(default_factory=dict)
+    skills: Optional[List[str] | Dict[str, Any]] = None  # Support both list and dict formats
     source: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = None
     assigned_recruiter_id: Optional[UUID] = None
@@ -44,7 +44,7 @@ class CandidateUpdate(BaseModel):
     current_company: Optional[str] = Field(None, max_length=200)
     current_title: Optional[str] = Field(None, max_length=200)
     total_experience_years: Optional[str] = Field(None, max_length=20)
-    skills: Optional[dict] = None
+    skills: Optional[List[str] | Dict[str, Any]] = None
     source: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = None
     assigned_recruiter_id: Optional[UUID] = None

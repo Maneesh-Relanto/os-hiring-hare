@@ -23,8 +23,10 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  TablePagination,
+  Tooltip,
 } from '@mui/material';
-import { Add, Edit, Delete, Visibility } from '@mui/icons-material';
+import { Add, Edit, Delete, Refresh } from '@mui/icons-material';
 import { candidatesApi, CandidateCreate } from '../services/candidatesApi';
 
 const getStatusColor = (status: string) => {
@@ -46,6 +48,8 @@ const Candidates = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [candidateToDelete, setCandidateToDelete] = useState<string | null>(null);
   const [editingCandidate, setEditingCandidate] = useState<any>(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [formData, setFormData] = useState<Partial<CandidateCreate>>({
     first_name: '',
     last_name: '',
@@ -54,10 +58,10 @@ const Candidates = () => {
     status: 'new',
   });
 
-  // Fetch candidates
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['candidates'],
-    queryFn: () => candidatesApi.list(),
+  // Fetch candidates with pagination
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['candidates', page, rowsPerPage],
+    queryFn: () => candidatesApi.list({ skip: page * rowsPerPage, limit: rowsPerPage }),
   });
 
   // Create mutation
@@ -142,6 +146,23 @@ const Candidates = () => {
     setCandidateToDelete(null);
   };
 
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
@@ -163,74 +184,141 @@ const Candidates = () => {
       <Container maxWidth="xl">
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 800,
-              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Candidates
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => handleOpenDialog()}
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              px: 3,
-              background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-            }}
-          >
-            Add Candidate
-          </Button>
+          <Box>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Candidates
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Total: {data?.total || 0} candidates
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Tooltip title="Refresh">
+              <IconButton onClick={() => refetch()} sx={{ border: '1px solid', borderColor: 'divider' }}>
+                <Refresh />
+              </IconButton>
+            </Tooltip>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => handleOpenDialog()}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                px: 3,
+                background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+              }}
+            >
+              Add Candidate
+            </Button>
+          </Box>
         </Box>
 
         {/* Candidates Table */}
-        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 3 }}>
-          <Table>
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 3, overflow: 'auto' }}>
+          <Table stickyHeader>
             <TableHead>
-              <TableRow sx={{ bgcolor: 'primary.main' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }}>Name</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }}>Email</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }}>Phone</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }}>Current Company</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }}>Status</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 700 }} align="right">Actions</TableCell>
+              <TableRow>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Name</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Email</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Phone</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Current Role</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Experience</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Status</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }}>Applied On</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 700 }} align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {data?.items.map((candidate) => (
                 <TableRow key={candidate.id} hover>
-                  <TableCell>{`${candidate.first_name} ${candidate.last_name}`}</TableCell>
-                  <TableCell>{candidate.email}</TableCell>
-                  <TableCell>{candidate.phone || '-'}</TableCell>
-                  <TableCell>{candidate.current_company || '-'}</TableCell>
                   <TableCell>
-                    <Chip label={candidate.status} color={getStatusColor(candidate.status)} size="small" />
+                    <Typography variant="body2" fontWeight={600}>
+                      {`${candidate.first_name} ${candidate.last_name}`}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {candidate.email}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {candidate.phone || '-'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" fontWeight={500}>
+                      {candidate.current_title || '-'}
+                    </Typography>
+                    {candidate.current_company && (
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        at {candidate.current_company}
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {candidate.total_experience_years ? `${candidate.total_experience_years} years` : '-'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={(candidate.status || 'new').toUpperCase()} 
+                      color={getStatusColor(candidate.status || 'new')} 
+                      size="small"
+                      sx={{ fontWeight: 600, minWidth: 100 }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {formatDate(candidate.created_at)}
+                    </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleOpenDialog(candidate)}>
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(candidate.id)} color="error">
-                      <Delete fontSize="small" />
-                    </IconButton>
+                    <Tooltip title="Edit">
+                      <IconButton size="small" onClick={() => handleOpenDialog(candidate)}>
+                        <Edit fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton size="small" onClick={() => handleDelete(candidate.id)} color="error">
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
               {data?.items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                     <Typography color="text.secondary">No candidates found. Add your first candidate!</Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={data?.total || 0}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              borderTop: '1px solid',
+              borderColor: 'divider',
+            }}
+          />
         </TableContainer>
 
         {/* Add/Edit Dialog */}

@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -42,9 +42,11 @@ async def list_candidates(
     
     if search:
         query = query.where(
-            Candidate.first_name.ilike(f"%{search}%") |
-            Candidate.last_name.ilike(f"%{search}%") |
-            Candidate.email.ilike(f"%{search}%")
+            or_(
+                Candidate.first_name.ilike(f"%{search}%"),
+                Candidate.last_name.ilike(f"%{search}%"),
+                Candidate.email.ilike(f"%{search}%")
+            )
         )
     
     # Get total count
