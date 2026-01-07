@@ -40,6 +40,7 @@ import {
   MoreVert,
 } from '@mui/icons-material';
 import { requirementsApi, RequirementCreate } from '../services/requirementsApi';
+import { usersApi } from '../services/usersApi';
 import RequirementForm from '../components/RequirementForm';
 import { useNotification } from '../contexts/NotificationContext';
 
@@ -100,8 +101,10 @@ const Requirements = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [recruiterDialogOpen, setRecruiterDialogOpen] = useState(false);
   const [approvalComments, setApprovalComments] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [selectedRecruiterId, setSelectedRecruiterId] = useState('');
   
   const pageSize = 10;
 
@@ -115,6 +118,12 @@ const Requirements = () => {
         status: statusFilter !== 'all' ? statusFilter : undefined,
         search: searchQuery || undefined,
       }),
+  });
+
+  // Fetch recruiters (users with recruiter role)
+  const { data: recruiters } = useQuery({
+    queryKey: ['recruiters'],
+    queryFn: () => usersApi.getByRole('recruiter'),
   });
 
   // Create mutation
@@ -234,6 +243,31 @@ const Requirements = () => {
     },
   });
 
+  // Assign recruiter mutation
+  const assignRecruiterMutation = useMutation({
+    mutationFn: ({ id, recruiterId }: { id: string; recruiterId: string }) =>
+      requirementsApi.assignRecruiter(id, recruiterId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Recruiter assigned successfully!', 'success');
+    },
+    onError: (error: any) => {
+      console.error('Assign recruiter error:', error);
+      let errorMessage = 'Failed to assign recruiter';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
     setAnchorEl(event.currentTarget);
     setSelectedReq(id);
@@ -321,6 +355,29 @@ const Requirements = () => {
     setRejectionReason('');
   };
 
+  const handleAssignRecruiter = () => {
+    if (selectedReq) {
+      setSelectedRecruiterId('');
+      setRecruiterDialogOpen(true);
+    }
+  };
+
+  const confirmAssignRecruiter = () => {
+    if (selectedReq && selectedRecruiterId) {
+      assignRecruiterMutation.mutate({ id: selectedReq, recruiterId: selectedRecruiterId });
+      setRecruiterDialogOpen(false);
+      setSelectedRecruiterId('');
+      handleMenuClose();
+    } else {
+      showNotification('Please select a recruiter', 'warning');
+    }
+  };
+
+  const cancelAssignRecruiter = () => {
+    setRecruiterDialogOpen(false);
+    setSelectedRecruiterId('');
+  };
+
   const handleRowClick = (requirementId: string) => {
     navigate(`/requirements/${requirementId}`);
   };
@@ -328,6 +385,7 @@ const Requirements = () => {
   const canSubmit = (req: any) => req.status.toLowerCase() === 'draft';
   const canApprove = (req: any) => req.status.toLowerCase() === 'submitted';
   const canReject = (req: any) => req.status.toLowerCase() === 'submitted';
+  const canAssignRecruiter = (req: any) => req.status.toLowerCase() === 'approved' && !req.assigned_recruiter_id;
 
   const handleFormSubmit = (formData: RequirementCreate) => {
     console.log('handleFormSubmit called with:', formData);
@@ -513,6 +571,7 @@ const Requirements = () => {
                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Position</TableCell>
                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Priority</TableCell>
                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assigned To</TableCell>
                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Created</TableCell>
                     <TableCell sx={{ fontWeight: 700, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }} align="center">
                       Actions
@@ -522,7 +581,7 @@ const Requirements = () => {
               <TableBody>
                 {data?.items.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
                       <Typography color="text.secondary">
                         No requirements found. Create your first requirement to get started.
                       </Typography>
@@ -559,6 +618,26 @@ const Requirements = () => {
                           color={getStatusColor(req.status)}
                           sx={{ fontWeight: 600, fontSize: '0.75rem' }}
                         />
+                      </TableCell>
+                      <TableCell>
+                        {req.assigned_recruiter_id ? (
+                          (() => {
+                            const recruiter = recruiters?.find(r => r.id === req.assigned_recruiter_id);
+                            return recruiter ? (
+                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                {recruiter.first_name} {recruiter.last_name}
+                              </Typography>
+                            ) : (
+                              <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                                Unknown
+                              </Typography>
+                            );
+                          })()
+                        ) : (
+                          <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                            Unassigned
+                          </Typography>
+                        )}
                       </TableCell>
                       <TableCell>{new Date(req.created_at).toLocaleDateString()}</TableCell>
                       <TableCell align="center">
@@ -619,6 +698,12 @@ const Requirements = () => {
                 <MenuItem onClick={handleReject} sx={{ color: 'error.main' }}>
                   <Typography fontSize="small" sx={{ mr: 1 }}>❌</Typography>
                   Reject
+                </MenuItem>
+              )}
+              {canAssignRecruiter(req) && (
+                <MenuItem onClick={handleAssignRecruiter} sx={{ color: 'info.main' }}>
+                  <Typography fontSize="small" sx={{ mr: 1 }}>👤</Typography>
+                  Assign Recruiter
                 </MenuItem>
               )}
               <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
@@ -741,6 +826,50 @@ const Requirements = () => {
             disabled={rejectionReason.length < 10}
           >
             Reject
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Assign Recruiter Dialog */}
+      <Dialog
+        open={recruiterDialogOpen}
+        onClose={cancelAssignRecruiter}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Assign Recruiter</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Select Recruiter</InputLabel>
+            <Select
+              value={selectedRecruiterId}
+              onChange={(e) => setSelectedRecruiterId(e.target.value)}
+              label="Select Recruiter"
+            >
+              {recruiters && recruiters.length > 0 ? (
+                recruiters.map((recruiter) => (
+                  <MenuItem key={recruiter.id} value={recruiter.id}>
+                    {recruiter.first_name} {recruiter.last_name} ({recruiter.email})
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No recruiters available</MenuItem>
+              )}
+            </Select>
+          </FormControl>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            The selected recruiter will be responsible for managing this requirement and finding suitable candidates.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelAssignRecruiter}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={confirmAssignRecruiter}
+            disabled={!selectedRecruiterId}
+          >
+            Assign
           </Button>
         </DialogActions>
       </Dialog>

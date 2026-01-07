@@ -4,7 +4,7 @@ API v1 router
 from fastapi import APIRouter
 
 # Import route modules
-from app.api.v1.endpoints import auth, requirements, reference_data, candidates
+from app.api.v1.endpoints import auth, requirements, reference_data, candidates, users
 
 api_router = APIRouter()
 
@@ -13,3 +13,4 @@ api_router.include_router(auth.router, tags=["Authentication"])
 api_router.include_router(requirements.router, tags=["Requirements"])
 api_router.include_router(reference_data.router, tags=["Reference Data"])
 api_router.include_router(candidates.router, tags=["Candidates"])
+api_router.include_router(users.router, tags=["Users"])
