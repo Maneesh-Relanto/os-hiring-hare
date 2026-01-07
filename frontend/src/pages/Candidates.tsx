@@ -43,6 +43,8 @@ const getStatusColor = (status: string) => {
 const Candidates = () => {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [candidateToDelete, setCandidateToDelete] = useState<string | null>(null);
   const [editingCandidate, setEditingCandidate] = useState<any>(null);
   const [formData, setFormData] = useState<Partial<CandidateCreate>>({
     first_name: '',
@@ -123,9 +125,21 @@ const Candidates = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this candidate?')) {
-      deleteMutation.mutate(id);
+    setCandidateToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (candidateToDelete) {
+      deleteMutation.mutate(candidateToDelete);
     }
+    setDeleteDialogOpen(false);
+    setCandidateToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setCandidateToDelete(null);
   };
 
   if (isLoading) {
@@ -332,6 +346,31 @@ const Candidates = () => {
               disabled={!formData.first_name || !formData.last_name || !formData.email}
             >
               {editingCandidate ? 'Update' : 'Create'}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={cancelDelete}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this candidate? This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={cancelDelete}>Cancel</Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={confirmDelete}
+            >
+              Delete
             </Button>
           </DialogActions>
         </Dialog>

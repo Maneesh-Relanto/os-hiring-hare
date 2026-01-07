@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -21,6 +22,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   Grid,
   FormControl,
   InputLabel,
@@ -85,6 +87,7 @@ const formatEnumValue = (value: string) => {
 const Requirements = () => {
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -92,6 +95,14 @@ const Requirements = () => {
   const [selectedReq, setSelectedReq] = useState<string | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingReq, setEditingReq] = useState<any>(null);
+  
+  // Dialog states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [approvalComments, setApprovalComments] = useState('');
+  const [rejectionReason, setRejectionReason] = useState('');
+  
   const pageSize = 10;
 
   // Fetch requirements with React Query
@@ -244,11 +255,19 @@ const Requirements = () => {
 
   const handleDelete = () => {
     if (!selectedReq) return;
-    // TODO: Replace with proper confirmation dialog
-    const confirmed = window.confirm('Are you sure you want to delete this requirement?');
-    if (confirmed) {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedReq) {
       deleteMutation.mutate(selectedReq);
     }
+    setDeleteDialogOpen(false);
+    handleMenuClose();
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
   };
 
   const handleSubmit = () => {
@@ -262,22 +281,48 @@ const Requirements = () => {
 
   const handleApprove = () => {
     if (selectedReq) {
-      const comments = prompt('Approval comments (optional):');
-      approveMutation.mutate({ id: selectedReq, comments: comments || undefined });
+      setApprovalDialogOpen(true);
     }
+  };
+
+  const confirmApproval = () => {
+    if (selectedReq) {
+      approveMutation.mutate({ id: selectedReq, comments: approvalComments || undefined });
+    }
+    setApprovalDialogOpen(false);
+    setApprovalComments('');
     handleMenuClose();
+  };
+
+  const cancelApproval = () => {
+    setApprovalDialogOpen(false);
+    setApprovalComments('');
   };
 
   const handleReject = () => {
     if (selectedReq) {
-      const comments = prompt('Rejection reason (required):');
-      if (comments && comments.length >= 10) {
-        rejectMutation.mutate({ id: selectedReq, comments });
-      } else {
-        showNotification('Rejection reason must be at least 10 characters', 'warning');
-      }
+      setRejectionDialogOpen(true);
     }
-    handleMenuClose();
+  };
+
+  const confirmRejection = () => {
+    if (selectedReq && rejectionReason && rejectionReason.length >= 10) {
+      rejectMutation.mutate({ id: selectedReq, comments: rejectionReason });
+      setRejectionDialogOpen(false);
+      setRejectionReason('');
+      handleMenuClose();
+    } else {
+      showNotification('Rejection reason must be at least 10 characters', 'warning');
+    }
+  };
+
+  const cancelRejection = () => {
+    setRejectionDialogOpen(false);
+    setRejectionReason('');
+  };
+
+  const handleRowClick = (requirementId: string) => {
+    navigate(`/requirements/${requirementId}`);
   };
 
   const canSubmit = (req: any) => req.status.toLowerCase() === 'draft';
@@ -487,6 +532,7 @@ const Requirements = () => {
                   data?.items.map((req) => (
                     <TableRow
                       key={req.id}
+                      onClick={() => handleRowClick(req.id)}
                       sx={{
                         '&:hover': {
                           bgcolor: 'rgba(99, 102, 241, 0.04)',
@@ -516,7 +562,13 @@ const Requirements = () => {
                       </TableCell>
                       <TableCell>{new Date(req.created_at).toLocaleDateString()}</TableCell>
                       <TableCell align="center">
-                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, req.id)}>
+                        <IconButton 
+                          size="small" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMenuOpen(e, req.id);
+                          }}
+                        >
                           <MoreVert />
                         </IconButton>
                       </TableCell>
@@ -591,6 +643,106 @@ const Requirements = () => {
             isLoading={createMutation.isPending || updateMutation.isPending}
           />
         </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={cancelDelete}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this requirement? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelDelete}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmDelete}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Approval Comments Dialog */}
+      <Dialog
+        open={approvalDialogOpen}
+        onClose={cancelApproval}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Approve Requirement</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Approval Comments (Optional)"
+            fullWidth
+            multiline
+            rows={3}
+            value={approvalComments}
+            onChange={(e) => setApprovalComments(e.target.value)}
+            placeholder="Add any comments about this approval..."
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelApproval}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={confirmApproval}
+          >
+            Approve
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rejection Reason Dialog */}
+      <Dialog
+        open={rejectionDialogOpen}
+        onClose={cancelRejection}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Reject Requirement</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Rejection Reason (Required)"
+            fullWidth
+            multiline
+            rows={3}
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Provide a reason for rejection (minimum 10 characters)..."
+            error={rejectionReason.length > 0 && rejectionReason.length < 10}
+            helperText={
+              rejectionReason.length > 0 && rejectionReason.length < 10
+                ? `${10 - rejectionReason.length} more characters required`
+                : ''
+            }
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelRejection}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmRejection}
+            disabled={rejectionReason.length < 10}
+          >
+            Reject
+          </Button>
+        </DialogActions>
       </Dialog>
       </Container>
     </Box>
