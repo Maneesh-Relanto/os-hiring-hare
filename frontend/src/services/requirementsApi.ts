@@ -110,4 +110,10 @@ export const requirementsApi = {
     const response = await api.post(`/api/v1/requirements/${id}/activate`);
     return response.data;
   },
+
+  // Get pending approvals for current user
+  getPendingApprovals: async (): Promise<any[]> => {
+    const response = await api.get('/api/v1/approvals/pending');
+    return response.data;
+  },
 };

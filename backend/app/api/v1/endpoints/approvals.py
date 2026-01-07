@@ -9,12 +9,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_user, require_role
+from app.core.deps import get_current_user, require_role
 from app.core.database import get_db
 from app.models.approval import Approval, ApprovalStatus, ApprovalStage
 from app.models.requirement import Requirement, RequirementStatus
 from app.models.user import User
+from app.schemas.requirement import RequirementResponse
 from pydantic import BaseModel
+from sqlalchemy.orm import selectinload
 
 router = APIRouter()
 
@@ -37,6 +39,61 @@ class ApprovalResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class PendingApprovalItem(BaseModel):
+    """Response schema for pending approval with requirement details"""
+    approval_id: UUID
+    approval_stage: str
+    submitted_at: datetime
+    requirement: RequirementResponse
+    submitter_name: str | None = None
+    submitter_email: str | None = None
+    
+    class Config:
+        from_attributes = True
+
+
+@router.get("/pending", response_model=List[PendingApprovalItem])
+async def get_pending_approvals(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Any:
+    """
+    Get all pending approvals for the current user.
+    Returns requirements that need approval from the logged-in user.
+    """
+    # Get pending approvals with related requirement data
+    result = await db.execute(
+        select(Approval)
+        .options(
+            selectinload(Approval.requirement).selectinload(Requirement.hiring_manager)
+        )
+        .where(
+            and_(
+                Approval.approver_id == current_user.id,
+                Approval.status == ApprovalStatus.PENDING
+            )
+        )
+        .order_by(Approval.submitted_at.desc())
+    )
+    approvals = result.scalars().all()
+    
+    # Transform to response format
+    pending_items = []
+    for approval in approvals:
+        if approval.requirement and not approval.requirement.deleted_at:
+            hiring_manager = approval.requirement.hiring_manager
+            pending_items.append({
+                "approval_id": approval.id,
+                "approval_stage": approval.approval_stage.value,
+                "submitted_at": approval.submitted_at,
+                "requirement": approval.requirement,
+                "submitter_name": hiring_manager.full_name if hiring_manager else None,
+                "submitter_email": hiring_manager.email if hiring_manager else None
+            })
+    
+    return pending_items
 
 
 @router.get("/{requirement_id}/approvals", response_model=List[ApprovalResponse])

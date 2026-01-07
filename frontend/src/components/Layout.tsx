@@ -28,6 +28,7 @@ import {
   Notifications,
   AccountCircle,
   Logout,
+  PendingActions,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -52,6 +53,12 @@ const menuItems: MenuItem[] = [
     icon: <Description />, 
     path: '/requirements',
     roles: ['admin', 'hiring_manager', 'approver', 'recruiter', 'viewer']
+  },
+  { 
+    text: 'Pending Approvals', 
+    icon: <PendingActions />, 
+    path: '/approvals',
+    roles: ['admin', 'approver']
   },
   { 
     text: 'Candidates', 
