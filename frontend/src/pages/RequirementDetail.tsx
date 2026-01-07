@@ -1,5 +1,6 @@
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Container,
@@ -12,9 +13,15 @@ import {
   CircularProgress,
   Alert,
   Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { ArrowBack, Edit, CalendarToday, Person, AttachMoney } from '@mui/icons-material';
 import { requirementsApi } from '../services/requirementsApi';
+import { useAuthStore } from '../store/authStore';
+import { useNotification } from '../contexts/NotificationContext';
 
 const getStatusColor = (status: string) => {
   const statusLower = status.toLowerCase();
@@ -60,12 +67,63 @@ const formatEnumValue = (value: string) => {
 const RequirementDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentUser = useAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
+  const { showNotification } = useNotification();
+  const [activationDialogOpen, setActivationDialogOpen] = React.useState(false);
 
   const { data: requirement, isLoading, error } = useQuery({
     queryKey: ['requirement', id],
     queryFn: () => requirementsApi.get(id!),
     enabled: !!id,
   });
+
+  // Activate mutation
+  const activateMutation = useMutation({
+    mutationFn: (reqId: string) => requirementsApi.activate(reqId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirement', id] });
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Requirement activated successfully!', 'success');
+      setActivationDialogOpen(false);
+    },
+    onError: (error: any) => {
+      console.error('Activate requirement error:', error);
+      let errorMessage = 'Failed to activate requirement';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
+  const canActivate = () => {
+    if (!requirement || !currentUser) return false;
+    return requirement.status.toLowerCase() === 'approved' && 
+           requirement.assigned_recruiter_id && 
+           currentUser.id === requirement.assigned_recruiter_id;
+  };
+
+  const handleActivate = () => {
+    setActivationDialogOpen(true);
+  };
+
+  const confirmActivation = () => {
+    if (id) {
+      activateMutation.mutate(id);
+    }
+  };
+
+  const cancelActivation = () => {
+    setActivationDialogOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -125,14 +183,27 @@ const RequirementDetail = () => {
                 />
               </Stack>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<Edit />}
-              onClick={() => navigate(`/requirements?edit=${id}`)}
-              sx={{ fontWeight: 600 }}
-            >
-              Edit
-            </Button>
+            <Stack direction="row" spacing={2}>
+              {canActivate() && (
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handleActivate}
+                  sx={{ fontWeight: 600 }}
+                  startIcon={<Typography fontSize="small">🚀</Typography>}
+                >
+                  Activate
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                startIcon={<Edit />}
+                onClick={() => navigate(`/requirements?edit=${id}`)}
+                sx={{ fontWeight: 600 }}
+              >
+                Edit
+              </Button>
+            </Stack>
           </Box>
         </Box>
 
@@ -348,6 +419,38 @@ const RequirementDetail = () => {
             </Paper>
           </Grid>
         </Grid>
+
+        {/* Activation Confirmation Dialog */}
+        <Dialog
+          open={activationDialogOpen}
+          onClose={cancelActivation}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>Activate Requirement</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              Are you sure you want to activate this requirement? Once activated, you can start sourcing candidates for this position.
+            </Typography>
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <Typography variant="body2">
+                <strong>Note:</strong> Activating this requirement will change its status to ACTIVE and set the posted date to today.
+              </Typography>
+            </Alert>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={cancelActivation}>Cancel</Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={confirmActivation}
+              disabled={activateMutation.isPending}
+              startIcon={<Typography fontSize="small">🚀</Typography>}
+            >
+              {activateMutation.isPending ? 'Activating...' : 'Activate'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </Box>
   );

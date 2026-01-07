@@ -43,6 +43,7 @@ import { requirementsApi, RequirementCreate } from '../services/requirementsApi'
 import { usersApi } from '../services/usersApi';
 import RequirementForm from '../components/RequirementForm';
 import { useNotification } from '../contexts/NotificationContext';
+import { useAuthStore } from '../store/authStore';
 
 const getStatusColor = (status: string) => {
   const statusLower = status.toLowerCase();
@@ -89,6 +90,7 @@ const Requirements = () => {
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const currentUser = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -102,6 +104,7 @@ const Requirements = () => {
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
   const [recruiterDialogOpen, setRecruiterDialogOpen] = useState(false);
+  const [activationDialogOpen, setActivationDialogOpen] = useState(false);
   const [approvalComments, setApprovalComments] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [selectedRecruiterId, setSelectedRecruiterId] = useState('');
@@ -268,6 +271,30 @@ const Requirements = () => {
     },
   });
 
+  // Activate requirement mutation
+  const activateMutation = useMutation({
+    mutationFn: (id: string) => requirementsApi.activate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Requirement activated successfully!', 'success');
+    },
+    onError: (error: any) => {
+      console.error('Activate requirement error:', error);
+      let errorMessage = 'Failed to activate requirement';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
     setAnchorEl(event.currentTarget);
     setSelectedReq(id);
@@ -378,6 +405,24 @@ const Requirements = () => {
     setSelectedRecruiterId('');
   };
 
+  const handleActivate = () => {
+    if (selectedReq) {
+      setActivationDialogOpen(true);
+    }
+  };
+
+  const confirmActivation = () => {
+    if (selectedReq) {
+      activateMutation.mutate(selectedReq);
+      setActivationDialogOpen(false);
+      handleMenuClose();
+    }
+  };
+
+  const cancelActivation = () => {
+    setActivationDialogOpen(false);
+  };
+
   const handleRowClick = (requirementId: string) => {
     navigate(`/requirements/${requirementId}`);
   };
@@ -386,6 +431,12 @@ const Requirements = () => {
   const canApprove = (req: any) => req.status.toLowerCase() === 'submitted';
   const canReject = (req: any) => req.status.toLowerCase() === 'submitted';
   const canAssignRecruiter = (req: any) => req.status.toLowerCase() === 'approved' && !req.assigned_recruiter_id;
+  const canActivate = (req: any) => {
+    return req.status.toLowerCase() === 'approved' && 
+           req.assigned_recruiter_id && 
+           currentUser && 
+           currentUser.id === req.assigned_recruiter_id;
+  };
 
   const handleFormSubmit = (formData: RequirementCreate) => {
     console.log('handleFormSubmit called with:', formData);
@@ -706,6 +757,12 @@ const Requirements = () => {
                   Assign Recruiter
                 </MenuItem>
               )}
+              {canActivate(req) && (
+                <MenuItem onClick={handleActivate} sx={{ color: 'success.main' }}>
+                  <Typography fontSize="small" sx={{ mr: 1 }}>🚀</Typography>
+                  Activate Requirement
+                </MenuItem>
+              )}
               <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
                 <Delete fontSize="small" sx={{ mr: 1 }} />
                 Delete
@@ -870,6 +927,37 @@ const Requirements = () => {
             disabled={!selectedRecruiterId}
           >
             Assign
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Activation Confirmation Dialog */}
+      <Dialog
+        open={activationDialogOpen}
+        onClose={cancelActivation}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Activate Requirement</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            Are you sure you want to activate this requirement? Once activated, you can start sourcing candidates for this position.
+          </Typography>
+          <Alert severity="info" sx={{ mt: 2 }}>
+            <Typography variant="body2">
+              <strong>Note:</strong> Activating this requirement will change its status to ACTIVE and set the posted date to today.
+            </Typography>
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelActivation}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={confirmActivation}
+            startIcon={<Typography fontSize="small">🚀</Typography>}
+          >
+            Activate
           </Button>
         </DialogActions>
       </Dialog>
