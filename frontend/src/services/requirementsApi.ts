@@ -88,14 +88,14 @@ export const requirementsApi = {
   },
 
   // Approve requirement
-  approve: async (id: string, comments?: string): Promise<Requirement> => {
-    const response = await api.post(`/api/v1/requirements/${id}/approve`, { comments });
+  approve: async (id: string, comments?: string): Promise<any> => {
+    const response = await api.post(`/api/v1/approvals/${id}/approve`, { comments });
     return response.data;
   },
 
   // Reject requirement
-  reject: async (id: string, comments: string): Promise<Requirement> => {
-    const response = await api.post(`/api/v1/requirements/${id}/reject`, { comments });
+  reject: async (id: string, comments: string): Promise<any> => {
+    const response = await api.post(`/api/v1/approvals/${id}/reject`, { comments });
     return response.data;
   },
 

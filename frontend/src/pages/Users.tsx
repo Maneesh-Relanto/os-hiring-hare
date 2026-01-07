@@ -256,15 +256,35 @@ const Users: React.FC = () => {
   );
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 4,
+          pb: 2,
+          borderBottom: '2px solid',
+          borderColor: 'divider'
+        }}
+      >
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            fontWeight: 800,
+            background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
           User Management
         </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleOpenCreateDialog}
+          sx={{ px: 3, py: 1.5, borderRadius: 2 }}
         >
           Add User
         </Button>
@@ -274,9 +294,10 @@ const Users: React.FC = () => {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
+                size="medium"
                 placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -289,8 +310,8 @@ const Users: React.FC = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
-              <FormControl fullWidth>
+            <Grid item xs={12} sm={6} md={2.5}>
+              <FormControl fullWidth size="medium">
                 <InputLabel>Role</InputLabel>
                 <Select
                   value={roleFilter}
@@ -306,8 +327,8 @@ const Users: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={3}>
-              <FormControl fullWidth>
+            <Grid item xs={12} sm={6} md={2.5}>
+              <FormControl fullWidth size="medium">
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={statusFilter}
@@ -320,12 +341,13 @@ const Users: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid item xs={12} sm={6} md={3}>
               <Button
                 fullWidth
                 variant="outlined"
                 startIcon={<RefreshIcon />}
                 onClick={() => refetch()}
+                sx={{ height: '56px' }}
               >
                 Refresh
               </Button>
@@ -377,7 +399,7 @@ const Users: React.FC = () => {
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.username}</TableCell>
                   <TableCell>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                    <Stack direction="column" spacing={0.5} alignItems="flex-start">
                       {user.roles.map((role) => (
                         <Chip
                           key={role.id}
@@ -385,6 +407,7 @@ const Users: React.FC = () => {
                           size="small"
                           color="primary"
                           variant="outlined"
+                          sx={{ minWidth: '80px' }}
                         />
                       ))}
                     </Stack>
