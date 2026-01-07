@@ -6,10 +6,12 @@ import Candidates from './pages/Candidates';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 function App() {
   return (
-    <Routes>
+    <NotificationProvider>
+      <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
 
@@ -32,6 +34,7 @@ function App() {
         }
       />
     </Routes>
+    </NotificationProvider>
   );
 }
 

@@ -22,7 +22,7 @@ class RequirementBase(BaseModel):
     key_responsibilities: Optional[str] = None
     required_qualifications: str
     preferred_qualifications: Optional[str] = None
-    required_skills: dict = Field(default_factory=dict)
+    required_skills: List[str] = Field(default_factory=list)
     min_salary: Optional[float] = None
     max_salary: Optional[float] = None
     currency: str = "USD"
@@ -53,7 +53,7 @@ class RequirementUpdate(BaseModel):
     key_responsibilities: Optional[str] = None
     required_qualifications: Optional[str] = None
     preferred_qualifications: Optional[str] = None
-    required_skills: Optional[dict] = None
+    required_skills: Optional[List[str]] = None
     min_salary: Optional[float] = None
     max_salary: Optional[float] = None
     currency: Optional[str] = None

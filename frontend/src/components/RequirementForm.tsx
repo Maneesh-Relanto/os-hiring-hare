@@ -19,6 +19,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { RequirementCreate } from '../services/requirementsApi';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface RequirementFormProps {
   initialData?: Partial<RequirementCreate>;
@@ -48,6 +49,7 @@ const RequirementForm = ({
   onCancel,
   isLoading = false,
 }: RequirementFormProps) => {
+  const { showNotification } = useNotification();
   const [tabValue, setTabValue] = useState(0);
   const [formData, setFormData] = useState<Partial<RequirementCreate>>({
     position_title: '',
@@ -129,37 +131,37 @@ const RequirementForm = ({
     
     // Basic validation
     if (!formData.position_title) {
-      alert('Please enter a position title');
+      showNotification('Please enter a position title', 'warning');
       return;
     }
     
     if (!formData.job_description) {
-      alert('Please enter a job description');
+      showNotification('Please enter a job description', 'warning');
       return;
     }
     
     if (!formData.required_qualifications) {
-      alert('Please enter required qualifications');
+      showNotification('Please enter required qualifications', 'warning');
       return;
     }
     
     if (!formData.justification) {
-      alert('Please enter a justification');
+      showNotification('Please enter a justification', 'warning');
       return;
     }
     
     if (!formData.department_id) {
-      alert('Please select a Department');
+      showNotification('Please select a Department', 'warning');
       return;
     }
     
     if (!formData.job_level_id) {
-      alert('Please select a Job Level');
+      showNotification('Please select a Job Level', 'warning');
       return;
     }
     
     if (!formData.location_id) {
-      alert('Please select a Location');
+      showNotification('Please select a Location', 'warning');
       return;
     }
     

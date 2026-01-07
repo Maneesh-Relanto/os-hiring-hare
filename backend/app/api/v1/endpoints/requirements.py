@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_role
 from app.models.user import User
+from app.models.role import Role
 from app.models.requirement import Requirement, RequirementStatus
 from app.models.approval import Approval, ApprovalStatus, ApprovalStage
 from app.schemas.requirement import (
@@ -234,14 +235,24 @@ async def submit_requirement(
             detail=f"Cannot submit requirement with status: {requirement.status}"
         )
     
-    # For MVP: Auto-assign to current user's manager or first admin as department head approver
+    # For MVP: Auto-assign to first admin/approver user
     # In production: Query based on department hierarchy
-    admin_result = await db.execute(
-        select(User).join(User.roles).where(
-            User.roles.any(name="admin")
-        ).limit(1)
+    
+    # Find a user with admin or approver role
+    approver_result = await db.execute(
+        select(User)
+        .join(User.roles)
+        .where(Role.name.in_(["admin", "approver"]))
+        .limit(1)
     )
-    approver = admin_result.scalar_one_or_none()
+    approver = approver_result.scalar_one_or_none()
+    
+    # Fallback: use the requirement creator's manager or just pick first active admin
+    if not approver:
+        approver_result = await db.execute(
+            select(User).where(User.is_superuser == True, User.is_active == True).limit(1)
+        )
+        approver = approver_result.scalar_one_or_none()
     
     if not approver:
         raise HTTPException(
@@ -379,6 +390,119 @@ async def reject_requirement(
     
     # Update requirement status
     requirement.status = RequirementStatus.REJECTED
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.post("/{requirement_id}/assign-recruiter/{recruiter_id}", response_model=RequirementResponse)
+async def assign_recruiter(
+    requirement_id: UUID,
+    recruiter_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("hiring_manager")),
+) -> Any:
+    """
+    Assign a recruiter to an approved requirement.
+    
+    Requirement must be in APPROVED status.
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Validate status
+    if requirement.status != RequirementStatus.APPROVED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Can only assign recruiter to approved requirements. Current status: {requirement.status}"
+        )
+    
+    # Verify recruiter exists and has recruiter role
+    recruiter_result = await db.execute(
+        select(User).where(User.id == recruiter_id)
+    )
+    recruiter = recruiter_result.scalar_one_or_none()
+    
+    if not recruiter:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Recruiter not found"
+        )
+    
+    # Assign recruiter
+    requirement.assigned_recruiter_id = recruiter_id
+    requirement.assigned_at = datetime.utcnow()
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.post("/{requirement_id}/activate", response_model=RequirementResponse)
+async def activate_requirement(
+    requirement_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("recruiter")),
+) -> Any:
+    """
+    Activate a requirement to start sourcing candidates.
+    
+    Status: APPROVED → ACTIVE
+    Requirement must be approved and have a recruiter assigned.
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Validate status
+    if requirement.status != RequirementStatus.APPROVED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Can only activate approved requirements. Current status: {requirement.status}"
+        )
+    
+    # Validate recruiter assigned
+    if not requirement.assigned_recruiter_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Requirement must have an assigned recruiter before activation"
+        )
+    
+    # Only assigned recruiter can activate
+    if requirement.assigned_recruiter_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the assigned recruiter can activate this requirement"
+        )
+    
+    # Activate requirement
+    requirement.status = RequirementStatus.ACTIVE
     
     await db.commit()
     await db.refresh(requirement)

@@ -80,4 +80,34 @@ export const requirementsApi = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/api/v1/requirements/${id}`);
   },
+
+  // Submit requirement for approval
+  submit: async (id: string): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/submit`);
+    return response.data;
+  },
+
+  // Approve requirement
+  approve: async (id: string, comments?: string): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/approve`, { comments });
+    return response.data;
+  },
+
+  // Reject requirement
+  reject: async (id: string, comments: string): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/reject`, { comments });
+    return response.data;
+  },
+
+  // Assign recruiter
+  assignRecruiter: async (id: string, recruiterId: string): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/assign-recruiter/${recruiterId}`);
+    return response.data;
+  },
+
+  // Activate requirement
+  activate: async (id: string): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/activate`);
+    return response.data;
+  },
 };

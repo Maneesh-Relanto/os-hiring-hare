@@ -39,6 +39,7 @@ import {
 } from '@mui/icons-material';
 import { requirementsApi, RequirementCreate } from '../services/requirementsApi';
 import RequirementForm from '../components/RequirementForm';
+import { useNotification } from '../contexts/NotificationContext';
 
 const getStatusColor = (status: string) => {
   const statusLower = status.toLowerCase();
@@ -82,6 +83,7 @@ const formatEnumValue = (value: string) => {
 };
 
 const Requirements = () => {
+  const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -111,12 +113,12 @@ const Requirements = () => {
       queryClient.invalidateQueries({ queryKey: ['requirements'] });
       setOpenDialog(false);
       setEditingReq(null);
-      alert('Requirement created successfully!');
+      showNotification('Requirement created successfully!', 'success');
     },
     onError: (error: any) => {
       console.error('Create requirement error:', error);
       const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to create requirement';
-      alert(`Error: ${errorMessage}`);
+      showNotification(errorMessage, 'error');
     },
   });
 
@@ -128,12 +130,12 @@ const Requirements = () => {
       queryClient.invalidateQueries({ queryKey: ['requirements'] });
       setOpenDialog(false);
       setEditingReq(null);
-      alert('Requirement updated successfully!');
+      showNotification('Requirement updated successfully!', 'success');
     },
     onError: (error: any) => {
       console.error('Update requirement error:', error);
       const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to update requirement';
-      alert(`Error: ${errorMessage}`);
+      showNotification(errorMessage, 'error');
     },
   });
 
@@ -143,6 +145,81 @@ const Requirements = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['requirements'] });
       handleMenuClose();
+    },
+  });
+
+  // Submit mutation
+  const submitMutation = useMutation({
+    mutationFn: requirementsApi.submit,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Requirement submitted for approval!', 'success');
+    },
+    onError: (error: any) => {
+      console.error('Submit error:', error);
+      let errorMessage = 'Failed to submit requirement';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        // Handle both string and array of error objects
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
+  // Approve mutation
+  const approveMutation = useMutation({
+    mutationFn: ({ id, comments }: { id: string; comments?: string }) =>
+      requirementsApi.approve(id, comments),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Requirement approved!', 'success');
+    },
+    onError: (error: any) => {
+      console.error('Approve error:', error);
+      let errorMessage = 'Failed to approve requirement';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
+  // Reject mutation
+  const rejectMutation = useMutation({
+    mutationFn: ({ id, comments }: { id: string; comments: string }) =>
+      requirementsApi.reject(id, comments),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Requirement rejected', 'warning');
+    },
+    onError: (error: any) => {
+      console.error('Reject error:', error);
+      let errorMessage = 'Failed to reject requirement';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
     },
   });
 
@@ -166,10 +243,46 @@ const Requirements = () => {
   };
 
   const handleDelete = () => {
-    if (selectedReq && window.confirm('Are you sure you want to delete this requirement?')) {
+    if (!selectedReq) return;
+    // TODO: Replace with proper confirmation dialog
+    const confirmed = window.confirm('Are you sure you want to delete this requirement?');
+    if (confirmed) {
       deleteMutation.mutate(selectedReq);
     }
   };
+
+  const handleSubmit = () => {
+    if (!selectedReq) {
+      handleMenuClose();
+      return;
+    }
+    submitMutation.mutate(selectedReq);
+    handleMenuClose();
+  };
+
+  const handleApprove = () => {
+    if (selectedReq) {
+      const comments = prompt('Approval comments (optional):');
+      approveMutation.mutate({ id: selectedReq, comments: comments || undefined });
+    }
+    handleMenuClose();
+  };
+
+  const handleReject = () => {
+    if (selectedReq) {
+      const comments = prompt('Rejection reason (required):');
+      if (comments && comments.length >= 10) {
+        rejectMutation.mutate({ id: selectedReq, comments });
+      } else {
+        showNotification('Rejection reason must be at least 10 characters', 'warning');
+      }
+    }
+    handleMenuClose();
+  };
+
+  const canSubmit = (req: any) => req.status.toLowerCase() === 'draft';
+  const canApprove = (req: any) => req.status.toLowerCase() === 'submitted';
+  const canReject = (req: any) => req.status.toLowerCase() === 'submitted';
 
   const handleFormSubmit = (formData: RequirementCreate) => {
     console.log('handleFormSubmit called with:', formData);
@@ -430,14 +543,39 @@ const Requirements = () => {
 
       {/* Action Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleEdit}>
-          <Edit fontSize="small" sx={{ mr: 1 }} />
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-          <Delete fontSize="small" sx={{ mr: 1 }} />
-          Delete
-        </MenuItem>
+        {selectedReq && data?.items.find((r) => r.id === selectedReq) && (() => {
+          const req = data.items.find((r) => r.id === selectedReq)!;
+          return (
+            <>
+              <MenuItem onClick={handleEdit}>
+                <Edit fontSize="small" sx={{ mr: 1 }} />
+                Edit
+              </MenuItem>
+              {canSubmit(req) && (
+                <MenuItem onClick={handleSubmit} sx={{ color: 'primary.main' }}>
+                  <Typography fontSize="small" sx={{ mr: 1 }}>📤</Typography>
+                  Submit for Approval
+                </MenuItem>
+              )}
+              {canApprove(req) && (
+                <MenuItem onClick={handleApprove} sx={{ color: 'success.main' }}>
+                  <Typography fontSize="small" sx={{ mr: 1 }}>✅</Typography>
+                  Approve
+                </MenuItem>
+              )}
+              {canReject(req) && (
+                <MenuItem onClick={handleReject} sx={{ color: 'error.main' }}>
+                  <Typography fontSize="small" sx={{ mr: 1 }}>❌</Typography>
+                  Reject
+                </MenuItem>
+              )}
+              <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+                <Delete fontSize="small" sx={{ mr: 1 }} />
+                Delete
+              </MenuItem>
+            </>
+          );
+        })()}
       </Menu>
 
       {/* Create/Edit Requirement Dialog */}
