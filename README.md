@@ -6,17 +6,32 @@
 [![Tech Stack](https://img.shields.io/badge/Frontend-React%2018%20%2B%20TypeScript-61dafb)](https://react.dev)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%2017-336791)](https://www.postgresql.org)
 [![Status](https://img.shields.io/badge/Status-MVP%20Development-orange)]()
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-os--hiring--hare-181717?logo=github)](https://github.com/Maneesh-Relanto/os-hiring-hare)
 
 > A comprehensive recruitment requirement tracking system designed to help corporate organizations manage their hiring needs from initial identification through successful candidate onboarding. Built with vibrant UI/UX featuring purple and teal gradients with glassmorphic design.
 
 **Current Version:** 0.1.0 (MVP Development)  
-**Last Updated:** January 6, 2026
+**Last Updated:** January 7, 2026  
+**Repository:** [github.com/Maneesh-Relanto/os-hiring-hare](https://github.com/Maneesh-Relanto/os-hiring-hare)
+
+> 🎉 **Open Source & Free to Fork!** This project is MIT licensed. Fork it, customize it, use it for your organization's recruitment needs. See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+---
+
+## 🚀 Quick Links
+
+- **[⚡ Quick Setup](SETUP.md)** - Get started in 5 minutes
+- **[📖 Full Documentation](docs/project-reference.md)** - Complete project reference
+- **[🤝 Contributing](CONTRIBUTING.md)** - How to contribute
+- **[📝 Recent Changes](COMMIT_SUMMARY.md)** - Latest development updates
+- **[🔐 RBAC Analysis](RBAC_REUSABILITY_ANALYSIS.md)** - Module architecture review
 
 ---
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
+- [Overview](#overviewopen-source, )
 - [What's Been Built](#whats-been-built)
 - [MVP Feature Checklist](#mvp-feature-checklist)
 - [Tech Stack](#tech-stack)
@@ -45,6 +60,61 @@
 - 👁️ **95% visibility** into hiring pipeline
 - 📊 **Zero lost requirements**
 - ✅ **100% audit compliance**
+
+---
+
+## 🍴 Forking & Customization
+
+**Hiring Hare is designed to be forked and customized for your organization's needs!**
+
+### Perfect for:
+- 🏢 **Corporate HR Teams** - Use as-is for recruitment tracking
+- 🎓 **Educational Projects** - Learn full-stack development with real-world app
+- 🔧 **Custom Solutions** - Fork and modify for your specific requirements
+- 📚 **Portfolio Projects** - Showcase your development skills
+
+### What You Get:
+✅ Complete working application with authentication  
+✅ Modern React UI with Material-UI  
+✅ FastAPI backend with OpenAPI docs  
+✅ PostgreSQL database with migrations  
+✅ RBAC architecture (integrated, not standalone module)  
+✅ Comprehensive setup guide ([SETUP.md](SETUP.md))  
+✅ Seed scripts for test data  
+✅ MIT License - free to use commercially  
+
+### How to Fork:
+
+```bash
+# 1. Fork this repository on GitHub (click Fork button)
+
+# 2. Clone your fork
+git clone https://github.com/YOUR_USERNAME/os-hiring-hare.git
+cd os-hiring-hare
+
+# 3. Follow the setup guide
+# See SETUP.md for detailed instructions
+
+# 4. Customize for your needs
+# - Update branding (colors, logos, name)
+# - Add/remove features
+# - Modify workflows
+# - Integrate with your systems
+```
+
+### Important Notes:
+
+**RBAC Module Status:**
+- ✅ RBAC architecture is **integrated** into the application
+- ✅ Roles, permissions, and access control work perfectly
+- ⚠️ RBAC is **not yet extracted as standalone module**
+- 📦 If you need just RBAC, copy the relevant files (see [RBAC_REUSABILITY_ANALYSIS.md](RBAC_REUSABILITY_ANALYSIS.md))
+
+**Support:**
+- 📖 Read the [documentation](docs/project-reference.md)
+- 🐛 Report issues on [GitHub](https://github.com/Maneesh-Relanto/os-hiring-hare/issues)
+- 💬 Ask questions in [Discussions](https://github.com/Maneesh-Relanto/os-hiring-hare/discussions)
+- 🤝 Contribute improvements via [Pull Requests](CONTRIBUTING.md)
 
 ---
 
@@ -727,6 +797,137 @@ SELECT requirement_number, position_title, status FROM requirements;
 10. ⏳ Job postings can be created from requirements (NEXT)
 
 **Estimated MVP Completion**: Mid-January 2026
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+**What this means:**
+- ✅ Free to use for personal and commercial projects
+- ✅ Free to modify and distribute
+- ✅ Free to use in proprietary software
+- ✅ No warranty provided (use at your own risk)
+
+**Attribution:**
+While not required, attribution is appreciated! You can:
+- Keep the "Built with Hiring Hare" footer
+- Link back to this repository
+- Mention in your project documentation
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether it's:
+
+- 🐛 **Bug Reports** - Help us identify and fix issues
+- 💡 **Feature Requests** - Suggest new functionality
+- 📖 **Documentation** - Improve guides and examples
+- 💻 **Code Contributions** - Submit pull requests
+- ⭐ **Star the Repo** - Show your support!
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+### Contributors
+
+Thank you to everyone who has contributed to Hiring Hare! 🎉
+
+<!-- Add contributor list here as project grows -->
+
+---
+
+## 📞 Support & Community
+
+### Getting Help
+
+- 📖 **Documentation**: Start with [SETUP.md](SETUP.md) and [README.md](README.md)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/Maneesh-Relanto/os-hiring-hare/issues/new)
+- 💬 **Questions**: [GitHub Discussions](https://github.com/Maneesh-Relanto/os-hiring-hare/discussions)
+- 📧 **Contact**: [Create an issue](https://github.com/Maneesh-Relanto/os-hiring-hare/issues) for project-related queries
+
+### Roadmap
+
+**v0.1.0 (Current)** - MVP Development
+- ✅ Core recruitment tracking
+- ✅ Candidates management
+- ✅ Authentication & RBAC
+
+**v0.2.0 (Planned)** - Dashboard & Approvals
+- ⏳ Real-time dashboard metrics
+- ⏳ Approval workflows
+- ⏳ Job postings
+
+**v1.0.0 (Future)** - Production Ready
+- ⏳ Interview scheduling
+- ⏳ Email notifications
+- ⏳ Document management
+- ⏳ Advanced reporting
+
+**v2.0.0 (Future)** - Enterprise Features
+- ⏳ Standalone RBAC module
+- ⏳ Multi-tenant support
+- ⏳ API integrations
+- ⏳ Mobile apps
+
+See [GitHub Projects](https://github.com/Maneesh-Relanto/os-hiring-hare/projects) for detailed roadmap.
+
+---
+
+## 🙏 Acknowledgments
+
+**Built with these amazing open-source technologies:**
+
+- **FastAPI** - Modern Python web framework
+- **React** - JavaScript library for building UIs
+- **Material-UI** - React component library
+- **PostgreSQL** - Powerful open-source database
+- **SQLAlchemy** - Python SQL toolkit
+- **React Query** - Data fetching and caching
+- **Zustand** - State management
+- **TypeScript** - Type-safe JavaScript
+
+**Special thanks to:**
+- The open-source community for amazing tools
+- Everyone who reports bugs and suggests improvements
+- Contributors who help make this project better
+
+---
+
+## ⭐ Show Your Support
+
+If you find Hiring Hare useful, please consider:
+
+- ⭐ **Star this repository** on GitHub
+- 🍴 **Fork it** and customize for your needs
+- 🐛 **Report bugs** to help us improve
+- 💡 **Suggest features** you'd like to see
+- 🤝 **Contribute code** via pull requests
+- 📢 **Share it** with others who might benefit
+
+---
+
+## 📊 Project Stats
+
+![GitHub stars](https://img.shields.io/github/stars/Maneesh-Relanto/os-hiring-hare?style=social)
+![GitHub forks](https://img.shields.io/github/forks/Maneesh-Relanto/os-hiring-hare?style=social)
+![GitHub issues](https://img.shields.io/github/issues/Maneesh-Relanto/os-hiring-hare)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Maneesh-Relanto/os-hiring-hare)
+![GitHub last commit](https://img.shields.io/github/last-commit/Maneesh-Relanto/os-hiring-hare)
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the HR Community**
+
+[Report Bug](https://github.com/Maneesh-Relanto/os-hiring-hare/issues) · [Request Feature](https://github.com/Maneesh-Relanto/os-hiring-hare/issues) · [Contribute](CONTRIBUTING.md)
+
+**© 2026 Hiring Hare · [MIT License](LICENSE)**
+
+</div>
+
 
 ---
 
