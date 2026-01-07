@@ -111,6 +111,12 @@ const Requirements = () => {
       queryClient.invalidateQueries({ queryKey: ['requirements'] });
       setOpenDialog(false);
       setEditingReq(null);
+      alert('Requirement created successfully!');
+    },
+    onError: (error: any) => {
+      console.error('Create requirement error:', error);
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to create requirement';
+      alert(`Error: ${errorMessage}`);
     },
   });
 
@@ -122,6 +128,12 @@ const Requirements = () => {
       queryClient.invalidateQueries({ queryKey: ['requirements'] });
       setOpenDialog(false);
       setEditingReq(null);
+      alert('Requirement updated successfully!');
+    },
+    onError: (error: any) => {
+      console.error('Update requirement error:', error);
+      const errorMessage = error?.response?.data?.detail || error?.message || 'Failed to update requirement';
+      alert(`Error: ${errorMessage}`);
     },
   });
 
@@ -160,9 +172,12 @@ const Requirements = () => {
   };
 
   const handleFormSubmit = (formData: RequirementCreate) => {
+    console.log('handleFormSubmit called with:', formData);
     if (editingReq) {
+      console.log('Updating requirement:', editingReq.id);
       updateMutation.mutate({ id: editingReq.id, data: formData });
     } else {
+      console.log('Creating new requirement');
       createMutation.mutate(formData);
     }
   };

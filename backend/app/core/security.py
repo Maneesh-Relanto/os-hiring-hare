@@ -1,7 +1,7 @@
 """
 Security utilities for authentication and authorization
 """
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Any, Optional
 
 from jose import JWTError, jwt
@@ -25,9 +25,9 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
         Encoded JWT token string
     """
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {"exp": expire, "sub": subject, "type": "access"}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
@@ -47,9 +47,9 @@ def create_refresh_token(subject: str, expires_delta: Optional[timedelta] = None
         Encoded JWT refresh token string
     """
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     
     to_encode = {"exp": expire, "sub": subject, "type": "refresh"}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)

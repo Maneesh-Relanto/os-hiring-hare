@@ -13,6 +13,7 @@ import {
   Tab,
   InputAdornment,
   Chip,
+  Autocomplete,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -68,6 +69,31 @@ const RequirementForm = ({
 
   const [skillInput, setSkillInput] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
+  
+  // Fetch reference data from API
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [jobLevels, setJobLevels] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch departments
+    fetch('http://localhost:8000/api/v1/reference-data/departments')
+      .then(res => res.json())
+      .then(data => setDepartments(data || []))
+      .catch(err => console.error('Error fetching departments:', err));
+
+    // Fetch job levels
+    fetch('http://localhost:8000/api/v1/reference-data/job-levels')
+      .then(res => res.json())
+      .then(data => setJobLevels(data || []))
+      .catch(err => console.error('Error fetching job levels:', err));
+
+    // Fetch locations
+    fetch('http://localhost:8000/api/v1/reference-data/locations')
+      .then(res => res.json())
+      .then(data => setLocations(data || []))
+      .catch(err => console.error('Error fetching locations:', err));
+  }, []);
 
   useEffect(() => {
     if (initialData?.required_skills) {
@@ -98,36 +124,55 @@ const RequirementForm = ({
   };
 
   const handleSubmit = () => {
+    console.log('=== Form Submission Started ===');
+    console.log('Form data:', JSON.stringify(formData, null, 2)); // Debug log
+    
     // Basic validation
-    if (!formData.position_title || !formData.job_description || !formData.required_qualifications || !formData.justification) {
-      alert('Please fill in all required fields');
+    if (!formData.position_title) {
+      alert('Please enter a position title');
       return;
     }
+    
+    if (!formData.job_description) {
+      alert('Please enter a job description');
+      return;
+    }
+    
+    if (!formData.required_qualifications) {
+      alert('Please enter required qualifications');
+      return;
+    }
+    
+    if (!formData.justification) {
+      alert('Please enter a justification');
+      return;
+    }
+    
+    if (!formData.department_id) {
+      alert('Please select a Department');
+      return;
+    }
+    
+    if (!formData.job_level_id) {
+      alert('Please select a Job Level');
+      return;
+    }
+    
+    if (!formData.location_id) {
+      alert('Please select a Location');
+      return;
+    }
+    
+    console.log('All validations passed. Calling onSubmit...'); // Debug log
     onSubmit(formData as RequirementCreate);
   };
 
-  // Mock data for dropdowns - will be replaced with API calls
-  const departments = [
-    { id: '1', name: 'Engineering' },
-    { id: '2', name: 'Product' },
-    { id: '3', name: 'Design' },
-    { id: '4', name: 'Marketing' },
-    { id: '5', name: 'Sales' },
-  ];
-
-  const jobLevels = [
-    { id: '1', name: 'Junior' },
-    { id: '2', name: 'Mid-Level' },
-    { id: '3', name: 'Senior' },
-    { id: '4', name: 'Lead' },
-    { id: '5', name: 'Manager' },
-  ];
-
-  const locations = [
-    { id: '1', name: 'San Francisco, CA' },
-    { id: '2', name: 'New York, NY' },
-    { id: '3', name: 'Austin, TX' },
-    { id: '4', name: 'Remote' },
+  // Currency options
+  const currencies = [
+    { code: 'USD', name: 'US Dollar ($)', symbol: '$' },
+    { code: 'INR', name: 'Indian Rupee (₹)', symbol: '₹' },
+    { code: 'EUR', name: 'Euro (€)', symbol: '€' },
+    { code: 'GBP', name: 'British Pound (£)', symbol: '£' },
   ];
 
   return (
@@ -155,54 +200,55 @@ const RequirementForm = ({
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Department</InputLabel>
-                <Select
-                  value={formData.department_id}
-                  label="Department"
-                  onChange={(e) => handleChange('department_id', e.target.value)}
-                >
-                  {departments.map((dept) => (
-                    <MenuItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                options={departments}
+                getOptionLabel={(option) => option.name || ''}
+                value={departments.find(d => d.id === formData.department_id) || null}
+                onChange={(_, newValue) => handleChange('department_id', newValue?.id || '')}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Department"
+                    required
+                    placeholder="Search departments..."
+                  />
+                )}
+              />
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Job Level</InputLabel>
-                <Select
-                  value={formData.job_level_id}
-                  label="Job Level"
-                  onChange={(e) => handleChange('job_level_id', e.target.value)}
-                >
-                  {jobLevels.map((level) => (
-                    <MenuItem key={level.id} value={level.id}>
-                      {level.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                options={jobLevels}
+                getOptionLabel={(option) => option.name || ''}
+                value={jobLevels.find(l => l.id === formData.job_level_id) || null}
+                onChange={(_, newValue) => handleChange('job_level_id', newValue?.id || '')}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Job Level"
+                    required
+                    placeholder="Search job levels..."
+                  />
+                )}
+              />
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Location</InputLabel>
-                <Select
-                  value={formData.location_id}
-                  label="Location"
-                  onChange={(e) => handleChange('location_id', e.target.value)}
-                >
-                  {locations.map((loc) => (
-                    <MenuItem key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                options={locations}
+                getOptionLabel={(option) => option.city && option.country ? `${option.city}, ${option.country}` : option.name || ''}
+                value={locations.find(l => l.id === formData.location_id) || null}
+                onChange={(_, newValue) => handleChange('location_id', newValue?.id || '')}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Location"
+                    required
+                    placeholder="Search cities worldwide..."
+                  />
+                )}
+                groupBy={(option) => option.country || 'Other'}
+              />
             </Grid>
 
             <Grid item xs={12} md={6}>
@@ -418,10 +464,11 @@ const RequirementForm = ({
                   label="Currency"
                   onChange={(e) => handleChange('currency', e.target.value)}
                 >
-                  <MenuItem value="USD">USD ($)</MenuItem>
-                  <MenuItem value="EUR">EUR (€)</MenuItem>
-                  <MenuItem value="GBP">GBP (£)</MenuItem>
-                  <MenuItem value="INR">INR (₹)</MenuItem>
+                  {currencies.map((curr) => (
+                    <MenuItem key={curr.code} value={curr.code}>
+                      {curr.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
@@ -434,7 +481,11 @@ const RequirementForm = ({
                 value={formData.min_salary || ''}
                 onChange={(e) => handleChange('min_salary', parseFloat(e.target.value))}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      {currencies.find(c => c.code === formData.currency)?.symbol || '$'}
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid>
@@ -447,7 +498,11 @@ const RequirementForm = ({
                 value={formData.max_salary || ''}
                 onChange={(e) => handleChange('max_salary', parseFloat(e.target.value))}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      {currencies.find(c => c.code === formData.currency)?.symbol || '$'}
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Grid>

@@ -1,4 +1,5 @@
 """Requirement API endpoints."""
+from datetime import datetime
 from typing import Any, List
 from uuid import UUID
 
@@ -9,13 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_role
 from app.models.user import User
-from app.models.requirement import Requirement
+from app.models.requirement import Requirement, RequirementStatus
+from app.models.approval import Approval, ApprovalStatus, ApprovalStage
 from app.schemas.requirement import (
     RequirementCreate,
     RequirementUpdate,
     RequirementResponse,
     RequirementListResponse,
 )
+from app.schemas.approval import ApprovalAction, ApprovalReject, ApprovalResponse
 
 router = APIRouter(prefix="/requirements", tags=["requirements"])
 
@@ -191,3 +194,193 @@ async def delete_requirement(
     
     requirement.soft_delete()
     await db.commit()
+
+
+# ===========================
+# Approval Workflow Endpoints
+# ===========================
+
+@router.post("/{requirement_id}/submit", response_model=RequirementResponse)
+async def submit_requirement(
+    requirement_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("hiring_manager")),
+) -> Any:
+    """
+    Submit requirement for approval.
+    
+    Creates approval record for Department Head.
+    Status: DRAFT → SUBMITTED
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Validate: only DRAFT can be submitted
+    if requirement.status != RequirementStatus.DRAFT:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cannot submit requirement with status: {requirement.status}"
+        )
+    
+    # For MVP: Auto-assign to current user's manager or first admin as department head approver
+    # In production: Query based on department hierarchy
+    admin_result = await db.execute(
+        select(User).join(User.roles).where(
+            User.roles.any(name="admin")
+        ).limit(1)
+    )
+    approver = admin_result.scalar_one_or_none()
+    
+    if not approver:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No approver found. Please contact administrator."
+        )
+    
+    # Create approval record
+    approval = Approval(
+        requirement_id=requirement.id,
+        approver_id=approver.id,
+        approval_stage=ApprovalStage.DEPARTMENT_HEAD,
+        status=ApprovalStatus.PENDING,
+        submitted_at=datetime.utcnow()
+    )
+    
+    # Update requirement status
+    requirement.status = RequirementStatus.SUBMITTED
+    requirement.submitted_at = datetime.utcnow()
+    
+    db.add(approval)
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.post("/{requirement_id}/approve", response_model=RequirementResponse)
+async def approve_requirement(
+    requirement_id: UUID,
+    action: ApprovalAction,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Any:
+    """
+    Approve a requirement.
+    
+    Approver must have pending approval for this requirement.
+    Status: SUBMITTED → APPROVED
+    """
+    # Get requirement with approvals
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Find pending approval for current user
+    approval_result = await db.execute(
+        select(Approval).where(
+            Approval.requirement_id == requirement_id,
+            Approval.approver_id == current_user.id,
+            Approval.status == ApprovalStatus.PENDING
+        )
+    )
+    approval = approval_result.scalar_one_or_none()
+    
+    if not approval:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No pending approval found for this user"
+        )
+    
+    # Update approval
+    approval.status = ApprovalStatus.APPROVED
+    approval.comments = action.comments
+    approval.reviewed_at = datetime.utcnow()
+    
+    # Update requirement status
+    requirement.status = RequirementStatus.APPROVED
+    requirement.approved_at = datetime.utcnow()
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.post("/{requirement_id}/reject", response_model=RequirementResponse)
+async def reject_requirement(
+    requirement_id: UUID,
+    action: ApprovalReject,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Any:
+    """
+    Reject a requirement.
+    
+    Approver must have pending approval. Rejection reason is required.
+    Status: SUBMITTED → REJECTED
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Find pending approval for current user
+    approval_result = await db.execute(
+        select(Approval).where(
+            Approval.requirement_id == requirement_id,
+            Approval.approver_id == current_user.id,
+            Approval.status == ApprovalStatus.PENDING
+        )
+    )
+    approval = approval_result.scalar_one_or_none()
+    
+    if not approval:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No pending approval found for this user"
+        )
+    
+    # Update approval
+    approval.status = ApprovalStatus.REJECTED
+    approval.comments = action.comments  # Required field
+    approval.reviewed_at = datetime.utcnow()
+    
+    # Update requirement status
+    requirement.status = RequirementStatus.REJECTED
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement

@@ -47,7 +47,7 @@ async def list_job_levels(db: AsyncSession = Depends(get_db)):
 async def list_locations(db: AsyncSession = Depends(get_db)):
     """Get all active locations"""
     result = await db.execute(
-        select(Location).where(Location.is_active == True).order_by(Location.name)
+        select(Location).where(Location.is_active == True).order_by(Location.country, Location.city)
     )
     locations = result.scalars().all()
     return [
