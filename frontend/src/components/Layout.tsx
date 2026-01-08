@@ -30,6 +30,7 @@ import {
   Logout,
   PendingActions,
   SupervisorAccount,
+  WorkOutline,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -66,6 +67,12 @@ const menuItems: MenuItem[] = [
     icon: <People />, 
     path: '/candidates',
     roles: ['admin', 'recruiter', 'interviewer', 'viewer']
+  },
+  { 
+    text: 'Job Postings', 
+    icon: <WorkOutline />, 
+    path: '/postings',
+    roles: ['admin', 'recruiter']
   },
   { 
     text: 'Reports', 

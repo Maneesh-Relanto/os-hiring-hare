@@ -88,3 +88,64 @@ class RequirementListResponse(BaseModel):
     page: int
     page_size: int
     total_pages: int
+
+
+# Job Posting Schemas (Simplified Approach - Option B)
+
+class PostJobRequest(BaseModel):
+    """Schema for posting a job."""
+    channels: List[str] = Field(..., min_items=1, description="List of channels to post job to")
+    custom_description: Optional[str] = Field(None, description="Custom job description override")
+    benefits: Optional[List[str]] = Field(default_factory=list, description="List of benefits")
+    application_instructions: Optional[str] = Field(None, description="How to apply instructions")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "channels": ["internal", "linkedin", "naukri"],
+                "benefits": ["Health Insurance", "Work from Home", "Flexible Hours"],
+                "application_instructions": "Apply through our careers portal"
+            }
+        }
+
+
+class UpdatePostingRequest(BaseModel):
+    """Schema for updating job posting details."""
+    posting_status: Optional[str] = Field(None, description="Update posting status")
+    channels: Optional[List[str]] = Field(None, description="Update posting channels")
+    custom_description: Optional[str] = None
+    benefits: Optional[List[str]] = None
+    application_instructions: Optional[str] = None
+
+
+class JobPostingResponse(BaseModel):
+    """Schema for job posting response."""
+    id: UUID
+    requirement_number: str
+    position_title: str
+    department_name: str
+    location_name: str
+    employment_type: str
+    work_mode: str
+    job_description: str
+    required_qualifications: str
+    required_skills: List[str]
+    min_salary: Optional[float]
+    max_salary: Optional[float]
+    currency: str
+    is_posted: bool
+    posting_status: str
+    posting_channels: List[str]
+    job_posting_url: Optional[str]
+    posted_at: Optional[datetime]
+    benefits: Optional[List[str]] = None
+    application_instructions: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class PublicJobListResponse(BaseModel):
+    """Schema for public job listings."""
+    items: List[JobPostingResponse]
+    total: int

@@ -38,6 +38,7 @@ import {
   Edit,
   Delete,
   MoreVert,
+  WorkOutline,
 } from '@mui/icons-material';
 import { requirementsApi, RequirementCreate } from '../services/requirementsApi';
 import { usersApi } from '../services/usersApi';
@@ -105,9 +106,14 @@ const Requirements = () => {
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
   const [recruiterDialogOpen, setRecruiterDialogOpen] = useState(false);
   const [activationDialogOpen, setActivationDialogOpen] = useState(false);
+  const [postJobDialogOpen, setPostJobDialogOpen] = useState(false);
   const [approvalComments, setApprovalComments] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [selectedRecruiterId, setSelectedRecruiterId] = useState('');
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([]);
+  const [benefitsList, setBenefitsList] = useState<string[]>([]);
+  const [customDescription, setCustomDescription] = useState('');
+  const [applicationInstructions, setApplicationInstructions] = useState('');
   
   const pageSize = 10;
 
@@ -295,6 +301,31 @@ const Requirements = () => {
     },
   });
 
+  // Post job mutation
+  const postJobMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      requirementsApi.postJob(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requirements'] });
+      showNotification('Job posted successfully!', 'success');
+    },
+    onError: (error: any) => {
+      console.error('Post job error:', error);
+      let errorMessage = 'Failed to post job';
+      if (error?.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ');
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      showNotification(errorMessage, 'error');
+    },
+  });
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
     setAnchorEl(event.currentTarget);
     setSelectedReq(id);
@@ -423,6 +454,44 @@ const Requirements = () => {
     setActivationDialogOpen(false);
   };
 
+  const handlePostJob = () => {
+    if (selectedReq) {
+      setSelectedChannels([]);
+      setBenefitsList([]);
+      setCustomDescription('');
+      setApplicationInstructions('');
+      setPostJobDialogOpen(true);
+    }
+  };
+
+  const confirmPostJob = () => {
+    if (selectedReq && selectedChannels.length > 0) {
+      postJobMutation.mutate({
+        id: selectedReq,
+        data: {
+          channels: selectedChannels,
+          benefits: benefitsList.length > 0 ? benefitsList : undefined,
+          custom_description: customDescription || undefined,
+          application_instructions: applicationInstructions || undefined,
+        },
+      });
+      setPostJobDialogOpen(false);
+      handleMenuClose();
+    } else {
+      showNotification('Please select at least one channel', 'warning');
+    }
+  };
+
+  const cancelPostJob = () => {
+    setPostJobDialogOpen(false);
+  };
+
+  const toggleChannel = (channel: string) => {
+    setSelectedChannels((prev) =>
+      prev.includes(channel) ? prev.filter((c) => c !== channel) : [...prev, channel]
+    );
+  };
+
   const handleRowClick = (requirementId: string) => {
     navigate(`/requirements/${requirementId}`);
   };
@@ -435,6 +504,12 @@ const Requirements = () => {
     return req.status.toLowerCase() === 'approved' && 
            req.assigned_recruiter_id && 
            currentUser && 
+           currentUser.id === req.assigned_recruiter_id;
+  };
+  const canPostJob = (req: any) => {
+    return (req.status.toLowerCase() === 'approved' || req.status.toLowerCase() === 'active') &&
+           req.assigned_recruiter_id &&
+           currentUser &&
            currentUser.id === req.assigned_recruiter_id;
   };
 
@@ -663,12 +738,32 @@ const Requirements = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={formatEnumValue(req.status)}
-                          size="small"
-                          color={getStatusColor(req.status)}
-                          sx={{ fontWeight: 600, fontSize: '0.75rem' }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip
+                            label={formatEnumValue(req.status)}
+                            size="small"
+                            color={getStatusColor(req.status)}
+                            sx={{ fontWeight: 600, fontSize: '0.75rem' }}
+                          />
+                          {req.is_posted && (
+                            <Chip
+                              icon={<WorkOutline sx={{ fontSize: 14 }} />}
+                              label={formatEnumValue(req.posting_status)}
+                              size="small"
+                              color={
+                                req.posting_status === 'active'
+                                  ? 'success'
+                                  : req.posting_status === 'paused'
+                                  ? 'warning'
+                                  : req.posting_status === 'closed'
+                                  ? 'error'
+                                  : 'default'
+                              }
+                              variant="outlined"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem' }}
+                            />
+                          )}
+                        </Box>
                       </TableCell>
                       <TableCell>
                         {req.assigned_recruiter_id ? (
@@ -761,6 +856,12 @@ const Requirements = () => {
                 <MenuItem onClick={handleActivate} sx={{ color: 'success.main' }}>
                   <Typography fontSize="small" sx={{ mr: 1 }}>🚀</Typography>
                   Activate Requirement
+                </MenuItem>
+              )}
+              {canPostJob(req) && (
+                <MenuItem onClick={handlePostJob} sx={{ color: 'info.main' }}>
+                  <WorkOutline fontSize="small" sx={{ mr: 1 }} />
+                  Post Job
                 </MenuItem>
               )}
               <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
@@ -958,6 +1059,129 @@ const Requirements = () => {
             startIcon={<Typography fontSize="small">🚀</Typography>}
           >
             Activate
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Post Job Dialog */}
+      <Dialog
+        open={postJobDialogOpen}
+        onClose={cancelPostJob}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Post Job to Channels</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+            Select the channels where you want to post this job. The job will be visible on the selected platforms.
+          </Typography>
+
+          {/* Channels Selection */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+              Select Posting Channels *
+            </Typography>
+            <Grid container spacing={2}>
+              {['internal', 'linkedin', 'naukri', 'indeed', 'glassdoor', 'company_website'].map((channel) => (
+                <Grid item xs={12} sm={6} key={channel}>
+                  <Paper
+                    onClick={() => toggleChannel(channel)}
+                    sx={{
+                      p: 2,
+                      cursor: 'pointer',
+                      border: '2px solid',
+                      borderColor: selectedChannels.includes(channel) ? 'primary.main' : 'divider',
+                      bgcolor: selectedChannels.includes(channel) ? 'primary.50' : 'background.paper',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        transform: 'translateY(-2px)',
+                        boxShadow: 2,
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: '50%',
+                          border: '2px solid',
+                          borderColor: selectedChannels.includes(channel) ? 'primary.main' : 'divider',
+                          bgcolor: selectedChannels.includes(channel) ? 'primary.main' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        {selectedChannels.includes(channel) && (
+                          <Typography sx={{ color: 'white', fontSize: '14px' }}>✓</Typography>
+                        )}
+                      </Box>
+                      <Typography fontWeight={selectedChannels.includes(channel) ? 600 : 400}>
+                        {formatEnumValue(channel)}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Benefits */}
+          <TextField
+            fullWidth
+            label="Benefits (Optional)"
+            placeholder="e.g., Health Insurance, Remote Work, Flexible Hours"
+            helperText="Enter benefits separated by commas"
+            value={benefitsList.join(', ')}
+            onChange={(e) => setBenefitsList(e.target.value.split(',').map((b) => b.trim()).filter(Boolean))}
+            sx={{ mb: 3 }}
+          />
+
+          {/* Application Instructions */}
+          <TextField
+            fullWidth
+            label="Application Instructions (Optional)"
+            placeholder="Provide instructions on how to apply..."
+            multiline
+            rows={2}
+            value={applicationInstructions}
+            onChange={(e) => setApplicationInstructions(e.target.value)}
+            sx={{ mb: 3 }}
+          />
+
+          {/* Custom Description */}
+          <TextField
+            fullWidth
+            label="Custom Job Description (Optional)"
+            placeholder="Override the default job description if needed..."
+            multiline
+            rows={4}
+            value={customDescription}
+            onChange={(e) => setCustomDescription(e.target.value)}
+            helperText="Leave empty to use the requirement's job description"
+          />
+
+          <Alert severity="info" sx={{ mt: 3 }}>
+            <Typography variant="body2">
+              This will post the job to the selected channels and mark the requirement as posted. A public URL will be generated for the careers page.
+            </Typography>
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={cancelPostJob}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={confirmPostJob}
+            disabled={selectedChannels.length === 0}
+            startIcon={<WorkOutline />}
+            sx={{
+              background: 'linear-gradient(135deg, #6366F1 0%, #EC4899 100%)',
+            }}
+          >
+            Post Job
           </Button>
         </DialogActions>
       </Dialog>

@@ -11,13 +11,16 @@ from app.core.database import get_db
 from app.core.deps import get_current_user, require_role
 from app.models.user import User
 from app.models.role import Role
-from app.models.requirement import Requirement, RequirementStatus
+from app.models.requirement import Requirement, RequirementStatus, PostingStatus
 from app.models.approval import Approval, ApprovalStatus, ApprovalStage
 from app.schemas.requirement import (
     RequirementCreate,
     RequirementUpdate,
     RequirementResponse,
     RequirementListResponse,
+    PostJobRequest,
+    UpdatePostingRequest,
+    JobPostingResponse,
 )
 from app.schemas.approval import ApprovalAction, ApprovalReject, ApprovalResponse
 
@@ -508,3 +511,208 @@ async def activate_requirement(
     await db.refresh(requirement)
     
     return requirement
+
+
+# Job Posting Endpoints (Simplified Approach - Option B)
+
+@router.post("/{requirement_id}/post-job", response_model=RequirementResponse)
+async def post_job(
+    requirement_id: UUID,
+    post_data: PostJobRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("recruiter")),
+) -> Any:
+    """
+    Post a job to selected channels. Requires 'recruiter' role.
+    The requirement must be approved or active to be posted.
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Validate can be posted
+    if requirement.status not in [RequirementStatus.APPROVED, RequirementStatus.ACTIVE]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Can only post approved or active requirements. Current status: {requirement.status}"
+        )
+    
+    # Only assigned recruiter can post
+    if requirement.assigned_recruiter_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the assigned recruiter can post this requirement"
+        )
+    
+    # Generate URL slug from requirement number
+    url_slug = requirement.requirement_number.lower()
+    
+    # Update posting fields
+    requirement.is_posted = True
+    requirement.posting_status = PostingStatus.ACTIVE
+    requirement.posting_channels = post_data.channels
+    requirement.job_posting_url = f"/careers/{url_slug}"
+    requirement.posted_at = datetime.utcnow()
+    
+    # Store additional posting details
+    posting_details = {
+        "channels": post_data.channels,
+        "posted_by": str(current_user.id),
+        "posted_at": datetime.utcnow().isoformat(),
+    }
+    
+    if post_data.benefits:
+        posting_details["benefits"] = post_data.benefits
+    if post_data.application_instructions:
+        posting_details["application_instructions"] = post_data.application_instructions
+    if post_data.custom_description:
+        posting_details["custom_description"] = post_data.custom_description
+    
+    requirement.posting_details = posting_details
+    
+    # If not already active, activate the requirement
+    if requirement.status == RequirementStatus.APPROVED:
+        requirement.status = RequirementStatus.ACTIVE
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.put("/{requirement_id}/posting", response_model=RequirementResponse)
+async def update_job_posting(
+    requirement_id: UUID,
+    update_data: UpdatePostingRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role("recruiter")),
+) -> Any:
+    """
+    Update job posting details. Requires 'recruiter' role.
+    Can pause, reactivate, or close a posting.
+    """
+    # Get requirement
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Validate is posted
+    if not requirement.is_posted:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Requirement is not posted yet"
+        )
+    
+    # Only assigned recruiter can update
+    if requirement.assigned_recruiter_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the assigned recruiter can update this posting"
+        )
+    
+    # Update posting status
+    if update_data.posting_status:
+        try:
+            requirement.posting_status = PostingStatus(update_data.posting_status)
+        except ValueError:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid posting status: {update_data.posting_status}"
+            )
+    
+    # Update channels
+    if update_data.channels is not None:
+        requirement.posting_channels = update_data.channels
+    
+    # Update posting details
+    posting_details = requirement.posting_details or {}
+    
+    if update_data.benefits is not None:
+        posting_details["benefits"] = update_data.benefits
+    if update_data.application_instructions is not None:
+        posting_details["application_instructions"] = update_data.application_instructions
+    if update_data.custom_description is not None:
+        posting_details["custom_description"] = update_data.custom_description
+    
+    posting_details["updated_by"] = str(current_user.id)
+    posting_details["updated_at"] = datetime.utcnow().isoformat()
+    
+    requirement.posting_details = posting_details
+    
+    await db.commit()
+    await db.refresh(requirement)
+    
+    return requirement
+
+
+@router.get("/{requirement_id}/posting-preview", response_model=JobPostingResponse)
+async def get_posting_preview(
+    requirement_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Any:
+    """
+    Get a preview of how the job posting will look.
+    Requires authentication.
+    """
+    # Get requirement with relationships
+    result = await db.execute(
+        select(Requirement).where(
+            Requirement.id == requirement_id,
+            Requirement.deleted_at.is_(None)
+        )
+    )
+    requirement = result.scalar_one_or_none()
+    
+    if not requirement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Requirement not found"
+        )
+    
+    # Build posting response
+    posting_details = requirement.posting_details or {}
+    
+    return {
+        "id": requirement.id,
+        "requirement_number": requirement.requirement_number,
+        "position_title": requirement.position_title,
+        "department_name": requirement.department.name if requirement.department else "N/A",
+        "location_name": requirement.location.name if requirement.location else "N/A",
+        "employment_type": requirement.employment_type.value,
+        "work_mode": requirement.work_mode.value,
+        "job_description": posting_details.get("custom_description") or requirement.job_description,
+        "required_qualifications": requirement.required_qualifications,
+        "required_skills": requirement.required_skills or [],
+        "min_salary": float(requirement.min_salary) if requirement.min_salary else None,
+        "max_salary": float(requirement.max_salary) if requirement.max_salary else None,
+        "currency": requirement.currency,
+        "is_posted": requirement.is_posted,
+        "posting_status": requirement.posting_status.value,
+        "posting_channels": requirement.posting_channels or [],
+        "job_posting_url": requirement.job_posting_url,
+        "posted_at": requirement.posted_at,
+        "benefits": posting_details.get("benefits"),
+        "application_instructions": posting_details.get("application_instructions"),
+    }

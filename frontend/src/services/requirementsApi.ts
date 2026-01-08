@@ -116,4 +116,33 @@ export const requirementsApi = {
     const response = await api.get('/api/v1/approvals/pending');
     return response.data;
   },
+
+  // Post job to channels
+  postJob: async (id: string, data: {
+    channels: string[];
+    benefits?: string[];
+    custom_description?: string;
+    application_instructions?: string;
+  }): Promise<Requirement> => {
+    const response = await api.post(`/api/v1/requirements/${id}/post-job`, data);
+    return response.data;
+  },
+
+  // Update job posting
+  updatePosting: async (id: string, data: {
+    posting_status?: string;
+    channels?: string[];
+    benefits?: string[];
+    custom_description?: string;
+    application_instructions?: string;
+  }): Promise<Requirement> => {
+    const response = await api.put(`/api/v1/requirements/${id}/posting`, data);
+    return response.data;
+  },
+
+  // Get posting preview
+  getPostingPreview: async (id: string): Promise<any> => {
+    const response = await api.get(`/api/v1/requirements/${id}/posting-preview`);
+    return response.data;
+  },
 };
