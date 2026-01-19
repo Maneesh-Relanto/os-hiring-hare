@@ -22,9 +22,11 @@
 ## 🚀 Quick Links
 
 - **[⚡ Quick Setup](SETUP.md)** - Get started in 5 minutes
-- **[📖 Full Documentation](docs/project-reference.md)** - Complete project reference
+- **[📖 Project Overview](docs/PROJECT_OVERVIEW.md)** - Technical guide for developers
+- **[🎨 Features Guide](docs/FEATURES.md)** - Feature overview and workflows
 - **[🤝 Contributing](CONTRIBUTING.md)** - How to contribute
-- **[📝 Recent Changes](COMMIT_SUMMARY.md)** - Latest development updates
+- **[🏗️ System Architecture](architecture/system-architecture.md)** - Architecture details
+- **[💾 Database Schema](architecture/database-schema.md)** - Database design
 
 ---
 
