@@ -1,5 +1,5 @@
 """Requirement API endpoints."""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, List
 from uuid import UUID
 
@@ -23,6 +23,9 @@ from app.schemas.requirement import (
     JobPostingResponse,
 )
 from app.schemas.approval import ApprovalAction, ApprovalReject, ApprovalResponse
+
+# Constants
+REQUIREMENT_NOT_FOUND = REQUIREMENT_NOT_FOUND
 
 router = APIRouter(prefix="/requirements", tags=["requirements"])
 
@@ -136,7 +139,7 @@ async def get_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     return requirement
@@ -161,7 +164,7 @@ async def update_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Update fields
@@ -193,7 +196,7 @@ async def delete_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     requirement.soft_delete()
@@ -228,7 +231,7 @@ async def submit_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Validate: only DRAFT can be submitted
@@ -269,12 +272,12 @@ async def submit_requirement(
         approver_id=approver.id,
         approval_stage=ApprovalStage.DEPARTMENT_HEAD,
         status=ApprovalStatus.PENDING,
-        submitted_at=datetime.utcnow()
+        submitted_at=datetime.now(timezone.utc)
     )
     
     # Update requirement status
     requirement.status = RequirementStatus.SUBMITTED
-    requirement.submitted_at = datetime.utcnow()
+    requirement.submitted_at = datetime.now(timezone.utc)
     
     db.add(approval)
     await db.commit()
@@ -308,7 +311,7 @@ async def approve_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Find pending approval for current user
@@ -330,11 +333,11 @@ async def approve_requirement(
     # Update approval
     approval.status = ApprovalStatus.APPROVED
     approval.comments = action.comments
-    approval.reviewed_at = datetime.utcnow()
+    approval.reviewed_at = datetime.now(timezone.utc)
     
     # Update requirement status
     requirement.status = RequirementStatus.APPROVED
-    requirement.approved_at = datetime.utcnow()
+    requirement.approved_at = datetime.now(timezone.utc)
     
     await db.commit()
     await db.refresh(requirement)
@@ -367,7 +370,7 @@ async def reject_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Find pending approval for current user
@@ -389,7 +392,7 @@ async def reject_requirement(
     # Update approval
     approval.status = ApprovalStatus.REJECTED
     approval.comments = action.comments  # Required field
-    approval.reviewed_at = datetime.utcnow()
+    approval.reviewed_at = datetime.now(timezone.utc)
     
     # Update requirement status
     requirement.status = RequirementStatus.REJECTED
@@ -424,7 +427,7 @@ async def assign_recruiter(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Validate status
@@ -448,7 +451,7 @@ async def assign_recruiter(
     
     # Assign recruiter
     requirement.assigned_recruiter_id = recruiter_id
-    requirement.assigned_at = datetime.utcnow()
+    requirement.assigned_at = datetime.now(timezone.utc)
     
     await db.commit()
     await db.refresh(requirement)
@@ -480,7 +483,7 @@ async def activate_requirement(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Validate status
@@ -538,7 +541,7 @@ async def post_job(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Validate can be posted
@@ -563,13 +566,13 @@ async def post_job(
     requirement.posting_status = PostingStatus.ACTIVE
     requirement.posting_channels = post_data.channels
     requirement.job_posting_url = f"/careers/{url_slug}"
-    requirement.posted_at = datetime.utcnow()
+    requirement.posted_at = datetime.now(timezone.utc)
     
     # Store additional posting details
     posting_details = {
         "channels": post_data.channels,
         "posted_by": str(current_user.id),
-        "posted_at": datetime.utcnow().isoformat(),
+        "posted_at": datetime.now(timezone.utc).isoformat(),
     }
     
     if post_data.benefits:
@@ -614,7 +617,7 @@ async def update_job_posting(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Validate is posted
@@ -656,7 +659,7 @@ async def update_job_posting(
         posting_details["custom_description"] = update_data.custom_description
     
     posting_details["updated_by"] = str(current_user.id)
-    posting_details["updated_at"] = datetime.utcnow().isoformat()
+    posting_details["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     requirement.posting_details = posting_details
     
@@ -688,7 +691,7 @@ async def get_posting_preview(
     if not requirement:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Requirement not found"
+            detail=REQUIREMENT_NOT_FOUND
         )
     
     # Build posting response

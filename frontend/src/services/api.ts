@@ -23,7 +23,7 @@ api.interceptors.request.use(
           config.headers.Authorization = `Bearer ${token}`;
         }
       } catch (e) {
-        // Ignore parse errors
+        console.error('Failed to parse auth storage:', e);
       }
     }
     return config;
@@ -75,12 +75,12 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
         localStorage.removeItem('auth-storage');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
+        globalThis.location.href = '/login';
+        throw refreshError;
       }
     }
 
-    return Promise.reject(error);
+    throw error;
   }
 );
 

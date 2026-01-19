@@ -9,8 +9,6 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Avatar,
   Divider,
   Menu,
@@ -26,7 +24,6 @@ import {
   Assessment,
   Settings,
   Notifications,
-  AccountCircle,
   Logout,
   PendingActions,
   SupervisorAccount,
@@ -329,12 +326,14 @@ const Layout = ({ children }: LayoutProps) => {
           vertical: 'top',
           horizontal: 'right',
         }}
-        PaperProps={{
-          sx: {
-            mt: 1,
-            minWidth: 240,
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px)',
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1,
+              minWidth: 240,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+            },
           },
         }}
       >

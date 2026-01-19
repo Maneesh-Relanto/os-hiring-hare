@@ -17,6 +17,9 @@ from app.schemas.candidate import (
     CandidateListResponse,
 )
 
+# Constants
+CANDIDATE_NOT_FOUND = CANDIDATE_NOT_FOUND
+
 router = APIRouter(prefix="/candidates", tags=["candidates"])
 
 
@@ -102,7 +105,7 @@ async def get_candidate(
     if not candidate:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate not found"
+            detail=CANDIDATE_NOT_FOUND
         )
     
     return candidate
@@ -126,7 +129,7 @@ async def update_candidate(
     if not candidate:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate not found"
+            detail=CANDIDATE_NOT_FOUND
         )
     
     # Update fields
@@ -157,11 +160,11 @@ async def delete_candidate(
     if not candidate:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Candidate not found"
+            detail=CANDIDATE_NOT_FOUND
         )
     
     # Soft delete
-    from datetime import datetime
-    candidate.deleted_at = datetime.utcnow()
+    from datetime import datetime, timezone
+    candidate.deleted_at = datetime.now(timezone.utc)
     
     await db.commit()
